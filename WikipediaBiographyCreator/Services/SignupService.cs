@@ -15,6 +15,6 @@ public class SignupService : ISignupService
 
     public void TestStuff()
     {
-        throw new SignupException("Scaffolding...");
+        throw new SignupException("Scaffolding complete...");
     }
 }
