@@ -1,9 +1,9 @@
 ﻿namespace WikipediaBiographyCreator.Exceptions
 {
-    public class SignupException : Exception
+    public class AppException : Exception
     {
         // Constructor that accepts a message
-        public SignupException(string message) : base(message)
+        public AppException(string message) : base(message)
         {
         }
     }
