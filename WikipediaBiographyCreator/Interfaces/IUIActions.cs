@@ -2,7 +2,7 @@
 {
     public interface IUIActions
     {
-        void ListSignups();
+        void GuardianObituaries();
         void NYTimesObituaries();
         void TestStuff();
     }

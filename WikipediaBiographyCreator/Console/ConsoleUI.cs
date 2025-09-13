@@ -15,7 +15,7 @@ namespace WikipediaBiographyCreator.Console
 
         private static class MenuOptions
         {
-            public const string PrintSignups = "p";
+            public const string GuardianObits = "g";
             public const string NYTimesObits = "n";
             public const string TestStuff = "t";
             public const string Quit = "q";
@@ -27,7 +27,7 @@ namespace WikipediaBiographyCreator.Console
             _assemblyService = assemblyService;
             _menuItems =
             [
-                new("Print signups", MenuOptions.PrintSignups, _uiActions.ListSignups),
+                new("Guardian obituaries", MenuOptions.GuardianObits, _uiActions.GuardianObituaries),
                 new("NYTimes obituaries", MenuOptions.NYTimesObits, _uiActions.NYTimesObituaries),
                 new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),
                 new("Quit", MenuOptions.Quit, () => _quit = true)

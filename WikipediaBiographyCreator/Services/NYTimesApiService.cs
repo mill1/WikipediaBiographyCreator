@@ -5,19 +5,23 @@ using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Exceptions;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
+using WikipediaBiographyCreator.Models.NYTimes;
 
 namespace WikipediaBiographyCreator.Services
 {
     public class NYTimesApiService : INYTimesApiService
     {
+        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly INYTimesObituarySubjectService _obituarySubjectService;
 
         public NYTimesApiService(
+            IConfiguration configuration,
             HttpClient httpClient,
             INYTimesObituarySubjectService obituarySubjectService,
             IAssemblyService assemblyService)
         {
+            _configuration = configuration;
             _httpClient = httpClient;
             _obituarySubjectService = obituarySubjectService;
             _httpClient.BaseAddress = new Uri("https://api.nytimes.com");
@@ -29,24 +33,24 @@ namespace WikipediaBiographyCreator.Services
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public List<Obituary> ResolveObituariesOfMonth(int year, int monthId, string apiKey)
+        public List<Obituary> ResolveObituariesOfMonth(int year, int monthId)
         {
-            string json = GetResponse(year, monthId, apiKey);
-            IEnumerable<Doc> articleDocs = GetArticleDocs(json);
-            IEnumerable<Doc> obituaryDocs = GetObituaryDocs(year, monthId, articleDocs);
+            string json = GetResponse(year, monthId, GetApiKey());
+            IEnumerable<Doc> articles = GetArticles(json);
+            IEnumerable<Doc> obituaryDocs = GetObituaries(year, monthId, articles);
 
             var obituaries = obituaryDocs.Select(doc => new Obituary
             {
-                Title = doc.headline.main, // TODO checken wat is dit btw?: doc.headline.print_headline ?? doc.headline.main,
+                Title = doc.headline.main,
                 Subject = _obituarySubjectService.Resolve(doc)
             }).OrderBy(o => o.Subject.Name).ToList();
 
             return obituaries;
         }
 
-        private IEnumerable<Doc> GetArticleDocs(string json)
+        private IEnumerable<Doc> GetArticles(string json)
         {
-            NYTimesArchive archive = JsonConvert.DeserializeObject<NYTimesArchive>(json);
+            Rootobject archive = JsonConvert.DeserializeObject<Rootobject>(json);
 
             if (archive == null)
             {
@@ -54,34 +58,34 @@ namespace WikipediaBiographyCreator.Services
             }
 
             // Remove duplicates based on _id property
-            var articleDocs = archive.response.docs.GroupBy(d => d._id).Select(grp => grp.First());
+            var articles = archive.response.docs.GroupBy(d => d._id).Select(grp => grp.First());
 
-            return articleDocs;
+            return articles;
         }
 
-        private IEnumerable<Doc> GetObituaryDocs(int year, int monthId, IEnumerable<Doc> articleDocs)
+        private IEnumerable<Doc> GetObituaries(int year, int monthId, IEnumerable<Doc> articles)
         {
             try
             {
-                return articleDocs.Where(d => d.type_of_material.Contains("Obituary")).AsEnumerable().OrderBy(d => d.pub_date);
+                return articles.Where(d => d.type_of_material.Contains("Obituary")).AsEnumerable().OrderBy(d => d.pub_date);
             }
             catch (Exception) // Not every articleDoc has a property type_of_material
             {
-                return GetObituaryDocsNoLinq(year, monthId, articleDocs);
+                return GetObituariesNoLinq(year, monthId, articles);
             }
         }
 
-        private List<Doc> GetObituaryDocsNoLinq(int year, int monthId, IEnumerable<Doc> articleDocs)
+        private List<Doc> GetObituariesNoLinq(int year, int monthId, IEnumerable<Doc> articles)
         {
-            var obituaryDocs = new List<Doc>();
+            var obituaries = new List<Doc>();
 
-            foreach (var doc in articleDocs)
+            foreach (var doc in articles)
             {
                 try
                 {
                     if (doc.type_of_material.Contains("Obituary"))
                     {
-                        obituaryDocs.Add(doc);
+                        obituaries.Add(doc);
                     }
                 }
                 catch (Exception)
@@ -90,12 +94,11 @@ namespace WikipediaBiographyCreator.Services
                 }
             }
 
-            return obituaryDocs;
+            return obituaries;
         }
 
         private string GetResponse(int year, int monthId, string apiKey)
         {
-            // string uri = @"https://api.nytimes.com/svc/archive/v1/" + @$"{year}/{monthId}.json?api-key={apiKey}";
             string uri = @"svc/archive/v1/" + @$"{year}/{monthId}.json?api-key={apiKey}";
 
             ConsoleFormatter.WriteInfo($"Retrieving NYTimes archive for {year}/{monthId}...");
@@ -108,6 +111,18 @@ namespace WikipediaBiographyCreator.Services
             else
                 throw new AppException($"Error retrieving NYTimes archive: {response.ReasonPhrase}");
 
+        }
+
+        private string GetApiKey()
+        {
+            string apiKey = _configuration["NYTimes:ApiKey"];
+
+            if (apiKey == null || apiKey == "TOSET")
+            {
+                throw new AppException("NYTimes API key is not set in appsettings.json. Consult the README.");
+            }
+
+            return apiKey;
         }
     }
 }

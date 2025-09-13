@@ -1,5 +1,6 @@
 ﻿using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
+using WikipediaBiographyCreator.Models.NYTimes;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -48,7 +49,7 @@ namespace WikipediaBiographyCreator.Services
                 int pos = doc.headline.main.IndexOf(',');
 
                 if (pos < 0)
-                    return "Unknown name (NYTimes)"; // See feb 1997, article 17c07f7b-b7b9-5c7b-ad28-3e4649d82a08 ; A Whirl Beyond the White House for Stephanopoulos
+                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, 20)}"; // See feb 1997, article 17c07f7b-b7b9-5c7b-ad28-3e4649d82a08 ; A Whirl Beyond the White House for Stephanopoulos
 
                 return doc.headline.main.Substring(0, pos);
             }

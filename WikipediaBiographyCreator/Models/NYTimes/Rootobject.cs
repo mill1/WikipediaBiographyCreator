@@ -1,8 +1,8 @@
-﻿namespace WikipediaBiographyCreator.Models
+﻿namespace WikipediaBiographyCreator.Models.NYTimes
 {
     // https://developer.nytimes.com/docs/archive-product/1/overview
 
-    public class NYTimesArchive
+    public class Rootobject
     {
         public string copyright { get; set; }
         public Response response { get; set; }

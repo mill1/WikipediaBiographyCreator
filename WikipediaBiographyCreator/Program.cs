@@ -39,10 +39,13 @@ namespace WikipediaBiographyCreator
             .AddSingleton<ConsoleUI>()
             .AddSingleton<IUIActions, UIActions>()
             .AddScoped<IAssemblyService, AssemblyService>()
+            .AddScoped<IGuardianApiService, GuardianApiService>()
+            .AddScoped<IGuardianObituarySubjectService, GuardianObituarySubjectService>()
             .AddScoped<INYTimesApiService, NYTimesApiService>()
-            .AddScoped<INYTimesObituarySubjectService, NYTimesObituarySubjectService>()
-            .AddScoped<ISignupService, SignupService>()
-            .AddHttpClient<INYTimesApiService, NYTimesApiService>();
+            .AddScoped<INYTimesObituarySubjectService, NYTimesObituarySubjectService>();
+
+            services.AddHttpClient<IGuardianApiService, GuardianApiService>();
+            services.AddHttpClient<INYTimesApiService, NYTimesApiService>();
 
             return services;
         }
