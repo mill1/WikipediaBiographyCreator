@@ -2,9 +2,8 @@
 
 namespace WikipediaBiographyCreator.Interfaces
 {
-    public interface INYTimesObituarySubjectService
+    public interface INYTimesObituarySubjectService : IObituarySubjectService
     {
         Subject Resolve(Doc doc);
-        List<string> ResolveNameVersions(Doc doc);
     }
 }

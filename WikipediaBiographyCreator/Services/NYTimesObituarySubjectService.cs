@@ -16,23 +16,6 @@ namespace WikipediaBiographyCreator.Services
             };
         }
 
-        private string ResolveSubjectName(Doc doc)
-        {
-            var person = doc.keywords.FirstOrDefault(k => k.name == "persons");
-
-            if (person != null)
-                return person.value;
-            else
-            {
-                int pos = doc.headline.main.IndexOf(',');
-
-                if (pos < 0)
-                    return "Unknown name (NYTimes)"; // See feb 1997, article 17c07f7b-b7b9-5c7b-ad28-3e4649d82a08 ; A Whirl Beyond the White House for Stephanopoulos
-
-                return doc.headline.main.Substring(0, pos);
-            }
-        }
-
         public List<string> ResolveNameVersions(Doc doc)
         {
             string name = ResolveSubjectName(doc);
@@ -54,6 +37,23 @@ namespace WikipediaBiographyCreator.Services
             return GetNameVersions(firstnames, surnames, suffix);
         }
 
+        private string ResolveSubjectName(Doc doc)
+        {
+            var person = doc.keywords.FirstOrDefault(k => k.name == "persons");
+
+            if (person != null)
+                return person.value;
+            else
+            {
+                int pos = doc.headline.main.IndexOf(',');
+
+                if (pos < 0)
+                    return "Unknown name (NYTimes)"; // See feb 1997, article 17c07f7b-b7b9-5c7b-ad28-3e4649d82a08 ; A Whirl Beyond the White House for Stephanopoulos
+
+                return doc.headline.main.Substring(0, pos);
+            }
+        }
+
         private string AdjustFirstNames(string firstnames, out string suffix)
         {
             suffix = string.Empty;
@@ -68,7 +68,7 @@ namespace WikipediaBiographyCreator.Services
             // - Jr or Sr
             // - II, III, .. X 
             // - 2D, 3D, 4TH .. 9TH
-            // Note : I is kept since it can also mean I. (e.g. SAULS, JOHN I -> John I. Sauls). Same with V and X (OGASAWARA, FRANK X)
+            // Note : 'I' is kept since it can also mean I. (e.g. SAULS, JOHN I -> John I. Sauls). Same with V and X (OGASAWARA, FRANK X)
             switch (tail)
             {
                 case "JR":
@@ -84,6 +84,7 @@ namespace WikipediaBiographyCreator.Services
                 case "IX":
                     suffix = tail;
                     return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+
                 case "1T":
                 case "1ST":
                     suffix = "I";
@@ -141,7 +142,6 @@ namespace WikipediaBiographyCreator.Services
             return string.Join(' ', capitalizedWords);
         }
 
-
         private List<string> GetNameVersions(string firstnames, string surnames, string suffix)
         {
             if (string.IsNullOrEmpty(suffix))
@@ -193,28 +193,29 @@ namespace WikipediaBiographyCreator.Services
 
             var names = firstnames.Split(" ");
 
-            foreach (string name in names)
+            for (int i = 0; i < names.Length; i++)
             {
-                if (IsNameInitial(name))
+                if (IsNameInitial(names[i]))
                 {
                     // Keep the first initial always
-                    if (name == names[0])
+                    if (i == 0)
                     {
-                        @fixed += $"{name}. ";
+                        @fixed += $"{names[i]}. ";
                     }
                     else
                     {
                         if (!remove)
                         {
-                            @fixed += $"{name}. ";
+                            @fixed += $"{names[i]}. ";
                         }
                     }
                 }
                 else
                 {
-                    @fixed += $"{name} ";
+                    @fixed += $"{names[i]} ";
                 }
             }
+
             return @fixed.Trim();
         }
 

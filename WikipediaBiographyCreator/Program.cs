@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Services;
@@ -17,18 +18,24 @@ namespace WikipediaBiographyCreator
     {
         static void Main(string[] args)
         {
-            var services = BuildServiceCollection();
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            var services = BuildServiceCollection(configuration);
             using ServiceProvider sp = services.BuildServiceProvider();
             var service = sp.GetRequiredService<ConsoleUI>();
 
             service.Run();
         }
 
-        private static IServiceCollection BuildServiceCollection()
+        private static IServiceCollection BuildServiceCollection(IConfiguration config)
         {
             IServiceCollection services = new ServiceCollection();
 
             services
+            .AddSingleton<IConfiguration>(config)
             .AddSingleton<ConsoleUI>()
             .AddSingleton<IUIActions, UIActions>()
             .AddScoped<IAssemblyService, AssemblyService>()

@@ -1,4 +1,5 @@
-﻿using WikipediaBiographyCreator.Console;
+﻿using Microsoft.Extensions.Configuration;
+using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 
@@ -6,11 +7,16 @@ namespace WikipediaBiographyCreator.Services
 {
     public class UIActions : IUIActions
     {
+        private readonly IConfiguration _configuration;
         private readonly INYTimesApiService _nyTimesApiService;
         private readonly ISignupService _signupService;
 
-        public UIActions(INYTimesApiService nYTimesApiService, ISignupService signupService)
+        public UIActions(
+            IConfiguration configuration,
+            INYTimesApiService nYTimesApiService,
+            ISignupService signupService)
         {
+            _configuration = configuration;
             _nyTimesApiService = nYTimesApiService;
             _signupService = signupService;
         }
@@ -19,7 +25,7 @@ namespace WikipediaBiographyCreator.Services
         {
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
-            string apiKey = GetStringInput("API key:");
+            string apiKey = GetNYTimesApiKey();
 
             var obits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId, apiKey);
 
@@ -32,6 +38,18 @@ namespace WikipediaBiographyCreator.Services
 
                 ConsoleFormatter.WriteInfo(shortestName);
             }
+        }
+
+        private string GetNYTimesApiKey()
+        {
+            string apiKey = _configuration["NYTimes:ApiKey"];
+
+            if (apiKey == null || apiKey == "TOSET")
+            {
+                apiKey = GetStringInput("API key:");
+            }
+
+            return apiKey;
         }
 
         public void ListSignups()

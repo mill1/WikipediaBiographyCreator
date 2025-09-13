@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Exceptions;
@@ -12,7 +13,10 @@ namespace WikipediaBiographyCreator.Services
         private readonly HttpClient _httpClient;
         private readonly INYTimesObituarySubjectService _obituarySubjectService;
 
-        public NYTimesApiService(HttpClient httpClient, INYTimesObituarySubjectService obituarySubjectService, IAssemblyService assemblyService)
+        public NYTimesApiService(
+            HttpClient httpClient,
+            INYTimesObituarySubjectService obituarySubjectService,
+            IAssemblyService assemblyService)
         {
             _httpClient = httpClient;
             _obituarySubjectService = obituarySubjectService;
