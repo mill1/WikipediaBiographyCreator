@@ -25,6 +25,9 @@ namespace WikipediaBiographyCreator.Services
 
         private string ResolveSubjectName(Result obituary)
         {
+            // 1999 - 200?: webTitle = "Wally Cole obituary"
+            string subjectName = obituary.webTitle.Replace(" obituary", string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+
             /*
                 'Obituary: John Gotti' -> 'John Gotti'
                  Replace all these variants by string.Empty:
@@ -35,12 +38,12 @@ namespace WikipediaBiographyCreator.Services
                 'Letter: '
                 ...
              */
-            int pos = obituary.webTitle.IndexOf(':');
+            int pos = subjectName.IndexOf(':');
 
             if (pos < 0)
-                return obituary.webTitle;
+                return subjectName;
 
-            return obituary.webTitle.Substring(pos + 1).Trim();
+            return subjectName.Substring(pos + 1).Trim();
         }
     }
 }

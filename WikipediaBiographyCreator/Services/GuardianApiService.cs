@@ -41,14 +41,24 @@ namespace WikipediaBiographyCreator.Services
                 "pageSize": 10,  ALWAYS
                 "currentPage": 2,
                 "pages": 8,
+
+                "total": 8,
+                "startIndex": 1,
+                "pageSize": 10,
+                "currentPage": 1,
+                "pages": 1,
+
              */
 
             var obituaries = new List<Obituary>();
+            var apiKey = GetApiKey();
+            int page = 0;
 
-            for (int page = 1; page <= 8; page++)
+            while (true)
             {
-                string json = GetResponse(year, monthId, page, GetApiKey());
-                var obituaryResults = GetObituaryResults(json);
+                page++;
+                string json = GetResponse(year, monthId, page, apiKey);
+                var obituaryResults = GetObituaryResults(json, out int pages);
 
                 obituaries.AddRange(
                     obituaryResults.Select(result => new Obituary
@@ -56,12 +66,33 @@ namespace WikipediaBiographyCreator.Services
                         Title = result.webTitle,
                         Subject = _obituarySubjectService.Resolve(result)
                     }));
+
+
+                if (page == pages)
+                {
+                    break;
+                }
             }
+            ;
+
+
+            //for (int page = 1; page <= 8; page++)
+            //{
+            //    string json = GetResponse(year, monthId, page, apiKey);
+            //    var obituaryResults = GetObituaryResults(json);
+
+            //    obituaries.AddRange(
+            //        obituaryResults.Select(result => new Obituary
+            //        {
+            //            Title = result.webTitle,
+            //            Subject = _obituarySubjectService.Resolve(result)
+            //        }));
+            //}
 
             return obituaries;
         }
 
-        private IEnumerable<Result> GetObituaryResults(string json)
+        private IEnumerable<Result> GetObituaryResults(string json, out int pages)
         {
             Rootobject archive = JsonConvert.DeserializeObject<Rootobject>(json);
 
@@ -69,6 +100,8 @@ namespace WikipediaBiographyCreator.Services
             {
                 throw new AppException("Error deserializing Guardian archive JSON response.");
             }
+
+            pages = archive.response.pages;
 
             return archive.response.results.ToList();
         }

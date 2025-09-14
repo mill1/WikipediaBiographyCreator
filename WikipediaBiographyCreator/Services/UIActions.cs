@@ -24,6 +24,8 @@ namespace WikipediaBiographyCreator.Services
 
             ConsoleFormatter.WriteInfo($"{obits.Count} Guardian obituaries have been resolved:");
 
+            obits = obits.OrderBy(o => o.Subject.NameVersions.OrderBy(n => n.Length).First()).ToList();
+
             foreach (var obit in obits)
             {
                 // Get the shortest version of the name                
@@ -41,6 +43,8 @@ namespace WikipediaBiographyCreator.Services
             var obits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
 
             ConsoleFormatter.WriteInfo($"{obits.Count} NYTimes obituaries have been resolved:");
+
+            obits = obits.OrderBy(o => o.Subject.NameVersions.OrderBy(n => n.Length).First()).ToList();
 
             foreach (var obit in obits)
             {
