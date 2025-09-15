@@ -2,7 +2,9 @@
 {
     public class Obituary
     {
-        public required string Title { get; set; } // TODO header?
+        public required string Title { get; set; }
+
+        public int Page { get; set; } // TMP
 
         public required Subject Subject { get; set; }
     }

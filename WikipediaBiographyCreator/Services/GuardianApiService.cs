@@ -15,6 +15,17 @@ namespace WikipediaBiographyCreator.Services
         private readonly HttpClient _httpClient;
         private readonly IGuardianObituarySubjectService _obituarySubjectService;
 
+        private static readonly HashSet<string> ExcludedTitles =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Letter",
+                "Letters",
+                "Obituary: Letter",
+                "Obituaries: Letter",
+                "Obituary: Letters",
+                "Obituaries: Letters"
+            };
+
         public GuardianApiService(
             IConfiguration configuration,
             HttpClient httpClient,
@@ -35,21 +46,6 @@ namespace WikipediaBiographyCreator.Services
 
         public List<Obituary> ResolveObituariesOfMonth(int year, int monthId)
         {
-            /* TODO
-                "total": 74,
-                "startIndex": 11,
-                "pageSize": 10,  ALWAYS
-                "currentPage": 2,
-                "pages": 8,
-
-                "total": 8,
-                "startIndex": 1,
-                "pageSize": 10,
-                "currentPage": 1,
-                "pages": 1,
-
-             */
-
             var obituaries = new List<Obituary>();
             var apiKey = GetApiKey();
             int page = 0;
@@ -63,31 +59,19 @@ namespace WikipediaBiographyCreator.Services
                 obituaries.AddRange(
                     obituaryResults.Select(result => new Obituary
                     {
+                        Page = page, // TODO prop. later weghalen
                         Title = result.webTitle,
                         Subject = _obituarySubjectService.Resolve(result)
                     }));
 
-
                 if (page == pages)
-                {
                     break;
-                }
             }
-            ;
 
-
-            //for (int page = 1; page <= 8; page++)
-            //{
-            //    string json = GetResponse(year, monthId, page, apiKey);
-            //    var obituaryResults = GetObituaryResults(json);
-
-            //    obituaries.AddRange(
-            //        obituaryResults.Select(result => new Obituary
-            //        {
-            //            Title = result.webTitle,
-            //            Subject = _obituarySubjectService.Resolve(result)
-            //        }));
-            //}
+            obituaries = obituaries
+                .GroupBy(o => o.Subject.Name).Select(grp => grp.First()) // Remove duplicates 
+                .OrderBy(o => o.Subject.Name)
+                .ToList();
 
             return obituaries;
         }
@@ -103,7 +87,13 @@ namespace WikipediaBiographyCreator.Services
 
             pages = archive.response.pages;
 
-            return archive.response.results.ToList();
+            /*
+             https://www.theguardian.com/news/2000/jan/24/guardianobituaries1
+             https://www.theguardian.com/news/2001/mar/10/guardianobituaries
+             */
+            return archive.response.results
+                .Where(r => r.type == "article" && !ExcludedTitles.Contains(r.webTitle))
+                .ToList();
         }
 
         private string GetResponse(int year, int monthId, int page, string apiKey)

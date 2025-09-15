@@ -31,7 +31,7 @@ namespace WikipediaBiographyCreator.Services
                 // Get the shortest version of the name                
                 var shortestName = obit.Subject.NameVersions.OrderBy(n => n.Length).First();
 
-                ConsoleFormatter.WriteInfo(shortestName);
+                ConsoleFormatter.WriteInfo($"{shortestName}  PAGE={obit.Page} ({obit.Title})");
             }
         }
 

@@ -39,11 +39,15 @@ namespace WikipediaBiographyCreator.Services
             IEnumerable<Doc> articles = GetArticles(json);
             IEnumerable<Doc> obituaryDocs = GetObituaries(year, monthId, articles);
 
-            var obituaries = obituaryDocs.Select(doc => new Obituary
-            {
-                Title = doc.headline.main,
-                Subject = _obituarySubjectService.Resolve(doc)
-            }).OrderBy(o => o.Subject.Name).ToList();
+            var obituaries = obituaryDocs
+                .Select(doc => new Obituary
+                {
+                    Title = doc.headline.main,
+                    Subject = _obituarySubjectService.Resolve(doc)
+                })
+                .GroupBy(o => o.Subject.Name).Select(grp => grp.First()) // Remove duplicates 
+                .OrderBy(o => o.Subject.Name)
+                .ToList();
 
             return obituaries;
         }
