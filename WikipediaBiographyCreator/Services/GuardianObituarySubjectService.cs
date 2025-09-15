@@ -17,9 +17,10 @@ namespace WikipediaBiographyCreator.Services
 
         public List<string> ResolveNameVersions(Result obituary)
         {
-            // TODO improve obviously
             string name = ResolveSubjectName(obituary);
 
+            // Sonce we cannot distinguish bewteen first names and surnames and we return the name as is.
+            // We will use fuzzy matching later to match with NYTimes obituary subjects.
             return new List<string> { name };
         }
 
@@ -72,6 +73,7 @@ namespace WikipediaBiographyCreator.Services
                 "Capt ",
                 "Captain ",
                 "Admiral ",
+                "Admiral of the Fleet",
                 "Rear-Admiral ",
                 "Major ",
                 "Colonel ",
@@ -105,12 +107,13 @@ namespace WikipediaBiographyCreator.Services
                 "Professor ",
                 "the late ",
                 "The late ",
+                "Italian photographer ",
                 "Obituary "
             };
 
             foreach (var title in titles)
             {
-                if (name.StartsWith(title, StringComparison.OrdinalIgnoreCase))
+                if (name.StartsWith(title))
                 {
                     name = name.Substring(title.Length).Trim();
                     break; // only remove one leading title

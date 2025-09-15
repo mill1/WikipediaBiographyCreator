@@ -24,14 +24,9 @@ namespace WikipediaBiographyCreator.Services
 
             ConsoleFormatter.WriteInfo($"{obits.Count} Guardian obituaries have been resolved:");
 
-            obits = obits.OrderBy(o => o.Subject.NameVersions.OrderBy(n => n.Length).First()).ToList();
-
             foreach (var obit in obits)
             {
-                // Get the shortest version of the name                
-                var shortestName = obit.Subject.NameVersions.OrderBy(n => n.Length).First();
-
-                ConsoleFormatter.WriteInfo($"{shortestName}  PAGE={obit.Page} ({obit.Title})");
+                ConsoleFormatter.WriteInfo($"{obit.Subject.Name}"); // PAGE={obit.Page} ({obit.Title})");
             }
         }
 
@@ -44,14 +39,11 @@ namespace WikipediaBiographyCreator.Services
 
             ConsoleFormatter.WriteInfo($"{obits.Count} NYTimes obituaries have been resolved:");
 
-            obits = obits.OrderBy(o => o.Subject.NameVersions.OrderBy(n => n.Length).First()).ToList();
-
             foreach (var obit in obits)
             {
-                // Get the shortest version of the name                
-                var shortestName = obit.Subject.NameVersions.OrderBy(n => n.Length).First();
+                var longestName = obit.Subject.NameVersions.OrderBy(n => n.Length).Last();
 
-                ConsoleFormatter.WriteInfo(shortestName);
+                ConsoleFormatter.WriteInfo($"{longestName}"); // ({obit.Subject.Name})");
             }
         }
 

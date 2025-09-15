@@ -1,4 +1,5 @@
-﻿using WikipediaBiographyCreator.Interfaces;
+﻿using WikipediaBiographyCreator.Extensions;
+using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.NYTimes;
 
@@ -6,6 +7,13 @@ namespace WikipediaBiographyCreator.Services
 {
     public class NYTimesObituarySubjectService : INYTimesObituarySubjectService
     {
+        private readonly INameVersionService _nameVersionService;
+
+        public NYTimesObituarySubjectService(INameVersionService nameVersionService)
+        {
+            _nameVersionService = nameVersionService;
+        }
+
         public Subject Resolve(Doc doc)
         {
             return new Subject
@@ -24,18 +32,18 @@ namespace WikipediaBiographyCreator.Services
             int i = name.IndexOf(",");
 
             if (i == -1) // Just one name
-                return new List<string> { Capitalize(name) };
+                return new List<string> { name.Capitalize() };
 
             // "BAUMFELD," in request March 1988
             if (!name.Contains(' '))
-                return new List<string> { Capitalize(name.Replace(",", "")) };
+                return new List<string> { name.Replace(",", "").Capitalize() };
 
-            string surnames = Capitalize(name.Substring(0, i));
+            string surnames = name.Substring(0, i).Capitalize();
 
             string firstnames = name.Substring(i + 1).Trim();
             firstnames = AdjustFirstNames(firstnames, out string suffix);
 
-            return GetNameVersions(firstnames, surnames, suffix);
+            return _nameVersionService.GetNameVersions(firstnames, surnames, suffix);
         }
 
         private string ResolveSubjectName(Doc doc)
@@ -74,7 +82,7 @@ namespace WikipediaBiographyCreator.Services
             {
                 case "JR":
                 case "SR":
-                    suffix = Capitalize(tail) + ".";
+                    suffix = tail.Capitalize() + ".";
                     return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
                 case "II":
                 case "III":
@@ -120,121 +128,8 @@ namespace WikipediaBiographyCreator.Services
                     suffix = "X";
                     return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
                 default:
-                    return Capitalize(firstnames);
+                    return firstnames.Capitalize();
             }
-        }
-
-        private string Capitalize(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return string.Empty;
-
-            // Normalize spaces
-            value = value.Trim();
-
-            // Split words, ignore multiple spaces
-            var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            // Capitalize each word
-            var capitalizedWords = words.Select(w =>
-                char.ToUpper(w[0]) + w.Substring(1).ToLower()
-            );
-
-            return string.Join(' ', capitalizedWords);
-        }
-
-        private List<string> GetNameVersions(string firstnames, string surnames, string suffix)
-        {
-            if (string.IsNullOrEmpty(suffix))
-            {
-                if (HasNameInitial(firstnames))
-                    return GetNameVersionsInitialsNoSuffix(firstnames, surnames);
-                else
-                    return new List<string> { $"{firstnames} {surnames}" };
-            }
-            else
-            {
-                if (HasNameInitial(firstnames))
-                    return GetNameVersionsInitials(firstnames, surnames, suffix);
-                else
-                    return GetNameVersionsNoInitials(firstnames, surnames, suffix);
-            }
-        }
-
-        private List<string> GetNameVersionsNoInitials(string firstnames, string surnames, string suffix)
-        {
-            return new List<string>
-            {
-                $"{firstnames} {surnames} {suffix}",
-                $"{firstnames} {surnames}"
-            };
-        }
-
-        private List<string> GetNameVersionsInitials(string firstnames, string surnames, string suffix)
-        {
-            return new List<string>
-            {
-                $"{FixNameInitials(firstnames, false)} {surnames} {suffix}",
-                $"{FixNameInitials(firstnames, true)} {surnames} {suffix}",
-                $"{FixNameInitials(firstnames, false)} {surnames}",
-                $"{FixNameInitials(firstnames, true)} {surnames}"
-            };
-        }
-
-        private List<string> GetNameVersionsInitialsNoSuffix(string firstnames, string surnames)
-        {
-            return new List<string>{
-                $"{FixNameInitials(firstnames, false)} {surnames}",
-                $"{FixNameInitials(firstnames, true)} {surnames}" };
-        }
-
-        private string FixNameInitials(string firstnames, bool remove)
-        {
-            string @fixed = "";
-
-            var names = firstnames.Split(" ");
-
-            for (int i = 0; i < names.Length; i++)
-            {
-                if (IsNameInitial(names[i]))
-                {
-                    // Keep the first initial always
-                    if (i == 0)
-                    {
-                        @fixed += $"{names[i]}. ";
-                    }
-                    else
-                    {
-                        if (!remove)
-                        {
-                            @fixed += $"{names[i]}. ";
-                        }
-                    }
-                }
-                else
-                {
-                    @fixed += $"{names[i]} ";
-                }
-            }
-
-            return @fixed.Trim();
-        }
-
-        private bool HasNameInitial(string firstnames)
-        {
-            foreach (string name in firstnames.Split(" "))
-                if (IsNameInitial(name))
-                    return true;
-
-            return false;
-        }
-
-        private bool IsNameInitial(string name)
-        {
-            if (name.Length == 1 && name.Equals(name.ToUpper()))
-                return true;
-
-            return false;
         }
     }
 }

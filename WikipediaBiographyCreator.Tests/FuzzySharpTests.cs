@@ -1,0 +1,229 @@
+﻿using System.Diagnostics;
+
+namespace WikipediaBiographyCreator.Tests
+{
+    [TestClass]
+    public sealed class FuzzySharpTests
+    {
+        [TestMethod]
+        public void TestMethod1()
+        {
+            var subjectNamesGuardian = GetSubjectNamesGuardian();
+            var subjectNamesNYTimes = GetSubjectNamesNYTimes();
+
+            //foreach (var nameGuardian in subjectNamesGuardian)
+            //{
+            //    var result = FuzzySharp.Fuzz.PartialRatio(nameGuardian.ToString(), subjectNamesNYTimes);
+
+            //    Console.WriteLine($"{nameGuardian} => {result.Score} : {result.BestMatch.Value}");
+            //}
+
+            foreach (var name in subjectNamesGuardian)
+            {
+                // Find the best match in list1 for each name in list2
+                var bestMatch = FuzzySharp.Process.ExtractOne(name, subjectNamesNYTimes);
+
+                if (bestMatch.Score >= 90)
+                {
+                    Debug.WriteLine($"{name} -> {bestMatch.Value} (Score: {bestMatch.Score})");
+                }
+            }
+        }
+
+        private static List<string> GetSubjectNamesGuardian()
+        {
+            return new List<string>
+            {
+                "Ahmed Pochee",
+                "Aldo van Eyck",
+                "Anita Hoffman",
+                "Arthur Bray",
+                "Brendan Devlin",
+                "Brian Moore",
+                "Brian Stonehouse",
+                "Bryan Maclean",
+                "Charles Brown",
+                "Charles Shute",
+                "Cleveland Cram",
+                "Dadie Rylands",
+                "Diane Bull",
+                "Evelyn Jones",
+                "Frances Gershwin",
+                "Henrietta Moraes",
+                "Henry Neuberger",
+                "Highland values",
+                "Irene Busch-Serkin",
+                "Iron Eyes Cody",
+                "Jack Carter",
+                "Jacques Lecoq",
+                "James Peters",
+                "Jean-Claude Forest",
+                "Jerzy Grotowski",
+                "Joan Brossa",
+                "John Golding",
+                "John Pilkington",
+                "Kathleen Basford",
+                "Kathleen Halpin",
+                "Keisuke Kinoshita",
+                "Leslie French",
+                "Marcel Zillessen",
+                "Marion Ryan",
+                "Michael Argyle",
+                "Naomi Mitchison",
+                "Nigel Holder",
+                "Norman Dagley",
+                "of the Fleet Lord Lewin",
+                "Otto Koenigsberger",
+                "Petra Tegetmeier",
+                "Pradeep",
+                "Raemer Schreiber",
+                "Richard Warn",
+                "Robert Shaw",
+                "Robin Bailey",
+                "Rolf Liebermann",
+                "Ron Huzzard",
+                "Sebastian Haffner",
+                "Sheila Hawkins",
+                "Susan Strasberg",
+                "The Duke of Rutland",
+                "The Marquess of Bristol",
+                "Viola Farber",
+                "Wally Cole",
+                "William H Whyte",
+                "William Mars-Jones"
+            };
+        }
+
+        private static List<string> GetSubjectNamesNYTimes()
+        {
+            return new List<string>
+            {
+                "Virginia Eloise Peterson Abelson",
+                "Charles Francis Adams",
+                "David C. Adams",
+                "Eric Crull Baade",
+                "Abdel-latif Baghdadi",
+                "Katherine Bain",
+                "William Bentley Ball",
+                "William Milfred Batten",
+                "David W. Belin",
+                "VERNON Berg III",
+                "Zalman Chaim Bernstein",
+                "Thomas W. Binford",
+                "Charles Brown",
+                "Betty Bryant",
+                "Gabor Carelli",
+                "Leo Cherne",
+                "Charles Earl Cobb",
+                "Iron Eyes Cody",
+                "Henry Cohen",
+                "Paul Corser",
+                "Jane Clapperton Cushman",
+                "Fabrizio De Andre",
+                "Bessie Delany",
+                "David Dempsey",
+                "Don Taylor",
+                "Robert Douglas",
+                "Harold Edelman",
+                "George Jackson Eder",
+                "Edward M. Mervosh",
+                "Carl Elliott",
+                "August Everding",
+                "Arthur C. Fatt",
+                "Merle E. Frampton",
+                "Fred Hopkins",
+                "Miriam Freund-rosenthal",
+                "Richard Harold Freyberg",
+                "Gayle Young",
+                "James Priest Gifford",
+                "Frances Gershwin Godowsky",
+                "Leon M. Goldstein",
+                "Lewis J. Gorin Jr.",
+                "Mario Dario Grossi",
+                "Jerzy Grotowski",
+                "Gilbert M. Haggerty",
+                "James Hammersetein",
+                "Bennett Harrison",
+                "Theo Hios",
+                "Abbie Hoffman",
+                "William E. Hunt",
+                "Ted Hustead",
+                "James Holmes",
+                "Robert S. Johnson",
+                "Bryn Jones",
+                "Lucille Kallen",
+                "Monroe W. Karmin",
+                "Manfred L. Karnovsky",
+                "W. Page Keeton",
+                "Judith S. Kestenberg",
+                "Edward Joseph Kiernan",
+                "Robert E. Kirby",
+                "Walter Donald Kring",
+                "Buzz Kulik",
+                "Natale Laurendi",
+                "Jacques Lecoq",
+                "Jules W. Lederer",
+                "Leonard C. Lewin",
+                "Terence Thornton Lewin",
+                "Rolf Liebermann",
+                "Charles Luckman",
+                "Paul E. Manheim",
+                "Thomas C. Mann",
+                "David Manners",
+                "John D. Mcdonald",
+                "Paul Metcalf",
+                "Harvey Miller",
+                "Naomi Mitchison",
+                "Ntsu Mokhehle",
+                "Brian Moore",
+                "George L. Mosse",
+                "Ruth Rawlings Mott",
+                "Name Cannot Be Resolved. Main: William A. Lee Is De",
+                "David Newton",
+                "John Frederick Nims",
+                "Edgar Nollner",
+                "Margaret Wentworth Owings",
+                "Walter H. Page",
+                "Henry Paolucci",
+                "Edward T. Parrack",
+                "Marshall Perlin",
+                "Michael Petricciani",
+                "Pope",
+                "Clare Potter",
+                "Lorin E. Price",
+                "Jay Pritzker",
+                "Eugene S. Pulliam",
+                "Jerry Quarry",
+                "Gavin W. H. Relly",
+                "Ernest Schier",
+                "Henry Schwartz",
+                "Robert Shaw",
+                "Linwood P. Shipley",
+                "Sammy Solovitz",
+                "Harold P. Spivak",
+                "Philip Sterling",
+                "Joan Engel Stern",
+                "Susan Strasberg",
+                "Hanna F. Sulner",
+                "Theodore Tannenwald Jr.",
+                "Myles Tierney",
+                "Rita V. Tishman",
+                "Gonzalo Torrente Ballester",
+                "Mary Ann Unger",
+                "Jose Vela Zanetti",
+                "Virginia Verrill",
+                "Florendo M. Visitacion",
+                "Walker Hancock",
+                "Mark Warren",
+                "Louis Jolyon West",
+                "William H. Whyte",
+                "Orlandus Wilson",
+                "Damon Wright",
+                "Goro Yamaguchi",
+                "Frederick Zissu",
+                "Paul M. Zoll",
+                "Charles G. Zubrod"
+            };
+        }
+    }
+}
