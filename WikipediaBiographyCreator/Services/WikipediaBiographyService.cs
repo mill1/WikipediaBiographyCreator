@@ -10,15 +10,18 @@ namespace WikipediaBiographyCreator.Services
         private readonly IConfiguration _configuration;
         private readonly IGuardianApiService _guardianApiService;
         private readonly INYTimesApiService _nyTimesApiService;
+        private readonly IGuardianObituarySubjectService _guardianObituarySubjectService;
 
         public WikipediaBiographyService(
             IConfiguration configuration,
             IGuardianApiService guardianApiService,
-            INYTimesApiService nyTimesApiService)
+            INYTimesApiService nyTimesApiService,
+            IGuardianObituarySubjectService guardianObituarySubjectService)
         {
             _configuration = configuration;
             _guardianApiService = guardianApiService;
             _nyTimesApiService = nyTimesApiService;
+            _guardianObituarySubjectService = guardianObituarySubjectService;
         }
 
         public List<Biography> FindCandidates(int year, int monthId)
@@ -44,14 +47,15 @@ namespace WikipediaBiographyCreator.Services
                     // - Check if a corresponding Wikipedia article exists
                     // - If not, create a new Wikipedia article draft
 
-                    // TODO url
                     var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
 
-                    // var (min, max) = GetRange();
+                    // Check for existing Wikipedia article
+                    // We need to resolve the YoB and YoD first in case of disambiguation pages
+                    var (YearOfBirth, YearOfDeath) = _guardianObituarySubjectService.ResolveYoBAndYoD(bodyText);
 
-                    // TODO; you want an object that has best of both worlds:
-                    // - Guardian obituary data (body text, date of birth, date of death)
-                    // - NYTimes obituary data (first names, surnames -> resolve name versions)
+                    // Determine the name versions for which we need to check Wikipedia
+                    // TODO: resolve the first and last name from the NYTimes obit data
+
                 }
             }
 
