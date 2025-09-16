@@ -2,7 +2,7 @@
 {
     // https://developer.nytimes.com/docs/archive-product/1/overview
 
-    public class Rootobject
+    public class Archive
     {
         public string copyright { get; set; }
         public Response response { get; set; }

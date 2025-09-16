@@ -5,6 +5,7 @@
         public required string Title { get; set; }
         public required Subject Subject { get; set; }
         public string ApiUrl { get; set; }
+        public string WebUrl { get; set; }
     }
 
     public class Subject

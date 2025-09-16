@@ -1,7 +1,7 @@
 ﻿namespace WikipediaBiographyCreator.Models.Guardian
 {
 
-    public class Rootobject
+    public class Archive
     {
         public Response response { get; set; }
     }

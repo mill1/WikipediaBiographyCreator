@@ -62,6 +62,7 @@ namespace WikipediaBiographyCreator.Services
                     {
                         Title = result.webTitle,
                         ApiUrl = result.apiUrl,
+                        WebUrl = result.webUrl,
                         Subject = _obituarySubjectService.Resolve(result)
                     }));
 
@@ -87,7 +88,7 @@ namespace WikipediaBiographyCreator.Services
             return bodyText;
         }
 
-        private string GetObituaryBodyText(string json)
+        private static string GetObituaryBodyText(string json)
         {
             ArticleWithBodyText article = JsonConvert.DeserializeObject<ArticleWithBodyText>(json);
 
@@ -101,7 +102,7 @@ namespace WikipediaBiographyCreator.Services
 
         private IEnumerable<Result> GetObituaryResults(string json, out int pages)
         {
-            Rootobject archive = JsonConvert.DeserializeObject<Rootobject>(json);
+            Archive archive = JsonConvert.DeserializeObject<Archive>(json);
 
             if (archive == null)
             {

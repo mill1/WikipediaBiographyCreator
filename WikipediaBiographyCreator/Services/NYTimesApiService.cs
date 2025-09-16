@@ -54,7 +54,7 @@ namespace WikipediaBiographyCreator.Services
 
         private IEnumerable<Doc> GetArticles(string json)
         {
-            Rootobject archive = JsonConvert.DeserializeObject<Rootobject>(json);
+            Archive archive = JsonConvert.DeserializeObject<Archive>(json);
 
             if (archive == null)
             {

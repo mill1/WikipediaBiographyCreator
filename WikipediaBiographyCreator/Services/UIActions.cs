@@ -52,7 +52,7 @@ namespace WikipediaBiographyCreator.Services
 
             foreach (var obit in obits)
             {
-                ConsoleFormatter.WriteInfo($"{obit.Subject.NormalizedName} ({obit.Subject.Name})");
+                ConsoleFormatter.WriteInfo($"{obit.Subject.NormalizedName}"); // ({obit.Subject.Name})");
             }
         }
 
