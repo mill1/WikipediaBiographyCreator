@@ -7,11 +7,28 @@ namespace WikipediaBiographyCreator.Services
     {
         private readonly IGuardianApiService _guardianApiService;
         private readonly INYTimesApiService _nyTimesApiService;
+        private readonly IWikipediaBiographyService _wikipediaBiographyService;
 
-        public UIActions(IGuardianApiService guardianApiService, INYTimesApiService nyTimesApiService)
+        public UIActions(
+            IGuardianApiService guardianApiService,
+            INYTimesApiService nyTimesApiService,
+            IWikipediaBiographyService wikipediaBiographyService)
         {
             _guardianApiService = guardianApiService;
             _nyTimesApiService = nyTimesApiService;
+            _wikipediaBiographyService = wikipediaBiographyService;
+        }
+
+        public void FindCandidates()
+        {
+            int year = GetIntegerInput("Year:");
+            int monthId = GetIntegerInput("Month id:");
+
+            ConsoleFormatter.WriteInfo($"Finding candidates for {year}-{monthId}...");
+
+            var bios = _wikipediaBiographyService.FindCandidates(year, monthId);
+
+            ConsoleFormatter.WriteInfo($"{bios.Count} candidates have been found.");
         }
 
         public void ShowGuardianObituaries()
@@ -35,10 +52,9 @@ namespace WikipediaBiographyCreator.Services
 
             foreach (var obit in obits)
             {
-                ConsoleFormatter.WriteInfo($"{obit.Subject.CandidateName} ({obit.Subject.Name})");
+                ConsoleFormatter.WriteInfo($"{obit.Subject.NormalizedName} ({obit.Subject.Name})");
             }
         }
-
 
         public void TestStuff()
         {

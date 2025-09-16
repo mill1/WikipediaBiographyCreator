@@ -8,17 +8,17 @@ namespace WikipediaBiographyCreator.Tests
         [TestMethod]
         public void FuzzySharp_ShouldExtractTheBestMatch()
         {
-            var subjectNamesGuardian = GetSubjectNamesGuardian();
-            var subjectNamesNYTimes = GetSubjectNamesNYTimes();
+            var obitNamesGuardian = GetSubjectNamesGuardian();
+            var obitNamesNYTimes = GetSubjectNamesNYTimes();
 
-            foreach (var name in subjectNamesGuardian)
+            foreach (var subjectName in obitNamesGuardian)
             {
                 // Find the best match in list1 for each name in list2
-                var bestMatch = FuzzySharp.Process.ExtractOne(name, subjectNamesNYTimes);
+                var bestMatch = FuzzySharp.Process.ExtractOne(subjectName, obitNamesNYTimes);
 
                 if (bestMatch.Score >= 90)
                 {
-                    Debug.WriteLine($"{name} -> {bestMatch.Value} (Score: {bestMatch.Score})");
+                    Debug.WriteLine($"{subjectName} -> {bestMatch.Value} (Score: {bestMatch.Score})");
                 }
             }
         }

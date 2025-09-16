@@ -6,6 +6,7 @@ using WikipediaBiographyCreator.Exceptions;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.Guardian;
+using WikipediaBiographyCreator.Models.Guardian.Article;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -59,8 +60,8 @@ namespace WikipediaBiographyCreator.Services
                 obituaries.AddRange(
                     obituaryResults.Select(result => new Obituary
                     {
-                        Page = page, // TODO prop. later weghalen
                         Title = result.webTitle,
+                        ApiUrl = result.apiUrl,
                         Subject = _obituarySubjectService.Resolve(result)
                     }));
 
@@ -69,11 +70,33 @@ namespace WikipediaBiographyCreator.Services
             }
 
             obituaries = obituaries
-                .GroupBy(o => o.Subject.CandidateName).Select(grp => grp.First()) // Remove duplicates 
-                .OrderBy(o => o.Subject.CandidateName)
+                .GroupBy(o => o.Subject.NormalizedName).Select(grp => grp.First()) // Remove duplicates 
+                .OrderBy(o => o.Subject.NormalizedName)
                 .ToList();
 
             return obituaries;
+        }
+
+        public string GetObituaryText(string apiUrl, string subjectName)
+        {
+            var apiKey = GetApiKey();
+
+            string json = GetResponse(apiUrl, apiKey, subjectName);
+            var bodyText = GetObituaryBodyText(json);
+
+            return bodyText;
+        }
+
+        private string GetObituaryBodyText(string json)
+        {
+            ArticleWithBodyText article = JsonConvert.DeserializeObject<ArticleWithBodyText>(json);
+
+            if (article == null)
+            {
+                throw new AppException("Error deserializing Guardian article JSON response.");
+            }
+
+            return article.response.content.fields.bodyText;
         }
 
         private IEnumerable<Result> GetObituaryResults(string json, out int pages)
@@ -96,14 +119,22 @@ namespace WikipediaBiographyCreator.Services
                 .ToList();
         }
 
+        private string GetResponse(string apiUrl, string apiKey, string subjectName)
+        {
+            string uri = $"{apiUrl}?show-fields=bodyText&api-key={apiKey}";
+
+            ConsoleFormatter.WriteInfo($"Retrieving Guardian obituary text for {subjectName}...");
+
+            var response = _httpClient.GetAsync(uri).Result;
+
+            if (response.IsSuccessStatusCode)
+                return response.Content.ReadAsStringAsync().Result;
+            else
+                throw new AppException($"Error retrieving Guardian obituary: {response.ReasonPhrase}");
+        }
+
         private string GetResponse(int year, int monthId, int page, string apiKey)
         {
-            /*
-                - Up to 1 call per second
-                - Up to 500 calls per day
-                - Access to article text
-             */
-
             int daysInMonth = DateTime.DaysInMonth(year, monthId);
             string uri = $"tone/obituaries?type=article&from-date={year}-{monthId}-1&to-date={year}-{monthId}-{daysInMonth}&page={page}&api-key={apiKey}";
 

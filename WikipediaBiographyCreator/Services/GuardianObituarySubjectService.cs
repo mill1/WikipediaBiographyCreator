@@ -14,10 +14,13 @@ namespace WikipediaBiographyCreator.Services
             return new Subject
             {
                 Name = subjectName,
-                CandidateName = GetCandidateName(subjectName),
-                YearOfBirth = -1, // TODO prop. later toevoegen
-                YearOfDeath = -1, // TODO prop. later toevoegen
+                NormalizedName = GetNormalizedName(subjectName),
             };
+        }
+        public (int YearOfBirth, int YearOfDeath) ResolveYoBAndYoD(string obituaryText)
+        {
+            // TODO implement
+            return (-1, -1);
         }
 
         private string ResolveSubjectName(Result obituary)
@@ -50,16 +53,16 @@ namespace WikipediaBiographyCreator.Services
             return SanitizeSubjectName(subjectName);
         }
 
-        private static string GetCandidateName(string subjectName)
+        private static string GetNormalizedName(string subjectName)
         {
             // Replace all single-character words (A-Z) with "X." if not at the end of the string.
-            var GetCandidateName = Regex.Replace(
+            var GetNormalizedName = Regex.Replace(
                 subjectName,
                 @"\b([A-Z])\b(?!$)",
                 "$1."
             );
 
-            return GetCandidateName;
+            return GetNormalizedName;
         }
 
         private static string SanitizeSubjectName(string subjectName)

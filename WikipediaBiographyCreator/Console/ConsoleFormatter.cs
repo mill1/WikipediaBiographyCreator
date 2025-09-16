@@ -12,6 +12,7 @@
 
         // Output helpers
         public static void WriteError(string message) => WriteLine($"{message}", ConsoleColor.Red);
+        public static void WriteDebug(string message) => WriteLine($"{message}", ConsoleColor.Gray);
         public static void WriteWarning(string message) => WriteLine($"{message}", ConsoleColor.Magenta);
         public static void WriteInfo(string message) => WriteLine($"{message}", ConsoleColor.Cyan);
         public static void WriteSuccess(string message) => WriteLine($"{message}", ConsoleColor.Green);

@@ -1,10 +1,15 @@
-﻿namespace WikipediaBiographyCreator.Services
-{
-    public class WikipediaApiService
-    {
-        // TODO Since the Guardian response does not distinguish bewteen first names and surnames the NYTimes is used
-        // to create the name versions to check for existing Wikipedia articles:
-        // NYTimesObituarySubjectService.ResolveNameVersions(string subjectName)
+﻿using WikipediaBiographyCreator.Interfaces;
 
+namespace WikipediaBiographyCreator.Services
+{
+    public class WikipediaApiService : IWikipediaApiService
+    {
+        public string GetWikipediaArticleName(string nameVersion)
+        {
+            // TODO Call Wikipedia API to check if an article with a given name exists
+
+            // Not found
+            return string.Empty;
+        }
     }
 }

@@ -23,9 +23,7 @@ namespace WikipediaBiographyCreator.Services
             return new Subject
             {
                 Name = subjectName,
-                CandidateName = GetNameVersions(subjectName).OrderBy(nv => nv.Length).Last(),
-                YearOfBirth = -1, // Not available in the API response
-                YearOfDeath = -1, // Not available in the API response
+                NormalizedName = GetNameVersions(subjectName).OrderBy(nv => nv.Length).Last(),
             };
         }
 

@@ -45,8 +45,8 @@ namespace WikipediaBiographyCreator.Services
                     Title = doc.headline.main,
                     Subject = _obituarySubjectService.Resolve(doc)
                 })
-                .GroupBy(o => o.Subject.CandidateName).Select(grp => grp.First()) // Remove duplicates 
-                .OrderBy(o => o.Subject.CandidateName)
+                .GroupBy(o => o.Subject.NormalizedName).Select(grp => grp.First()) // Remove duplicates 
+                .OrderBy(o => o.Subject.NormalizedName)
                 .ToList();
 
             return obituaries;
