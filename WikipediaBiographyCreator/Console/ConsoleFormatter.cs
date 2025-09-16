@@ -16,7 +16,7 @@
         public static void WriteInfo(string message) => WriteLine($"{message}", ConsoleColor.Cyan);
         public static void WriteSuccess(string message) => WriteLine($"{message}", ConsoleColor.Green);
         public static void WriteMenuOption(string message) => WriteLine($"{message}", ConsoleColor.Yellow);
-        public static void WriteBanner(string message) => WriteLine($"{message}", ConsoleColor.White, ConsoleColor.DarkBlue);
+        public static void WriteBanner(string message) => WriteLine($"{message}", ConsoleColor.White, ConsoleColor.DarkMagenta);
 
         public static string GetUserInput(string prompt = "")
         {

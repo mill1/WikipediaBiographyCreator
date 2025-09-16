@@ -69,8 +69,8 @@ namespace WikipediaBiographyCreator.Services
             }
 
             obituaries = obituaries
-                .GroupBy(o => o.Subject.Name).Select(grp => grp.First()) // Remove duplicates 
-                .OrderBy(o => o.Subject.Name)
+                .GroupBy(o => o.Subject.CandidateName).Select(grp => grp.First()) // Remove duplicates 
+                .OrderBy(o => o.Subject.CandidateName)
                 .ToList();
 
             return obituaries;

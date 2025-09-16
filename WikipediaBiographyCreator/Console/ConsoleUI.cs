@@ -27,8 +27,8 @@ namespace WikipediaBiographyCreator.Console
             _assemblyService = assemblyService;
             _menuItems =
             [
-                new("Guardian obituaries", MenuOptions.GuardianObits, _uiActions.GuardianObituaries),
-                new("NYTimes obituaries", MenuOptions.NYTimesObits, _uiActions.NYTimesObituaries),
+                new("Show Guardian obituary names", MenuOptions.GuardianObits, _uiActions.ShowGuardianObituaries),
+                new("Show NYTimes obituary names", MenuOptions.NYTimesObits, _uiActions.ShowNYTimesObituaries),
                 new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
             ];

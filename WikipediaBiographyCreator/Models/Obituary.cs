@@ -12,7 +12,7 @@
     public class Subject
     {
         public required string Name { get; set; }
-        public required List<string> NameVersions { get; set; }
+        public required string CandidateName { get; set; }
         public int YearOfBirth { get; set; }
         public int YearOfDeath { get; set; }
     }

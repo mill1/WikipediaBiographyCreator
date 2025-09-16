@@ -6,17 +6,10 @@ namespace WikipediaBiographyCreator.Tests
     public sealed class FuzzySharpTests
     {
         [TestMethod]
-        public void TestMethod1()
+        public void FuzzySharp_ShouldExtractTheBestMatch()
         {
             var subjectNamesGuardian = GetSubjectNamesGuardian();
             var subjectNamesNYTimes = GetSubjectNamesNYTimes();
-
-            //foreach (var nameGuardian in subjectNamesGuardian)
-            //{
-            //    var result = FuzzySharp.Fuzz.PartialRatio(nameGuardian.ToString(), subjectNamesNYTimes);
-
-            //    Console.WriteLine($"{nameGuardian} => {result.Score} : {result.BestMatch.Value}");
-            //}
 
             foreach (var name in subjectNamesGuardian)
             {

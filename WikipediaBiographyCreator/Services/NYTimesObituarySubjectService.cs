@@ -16,31 +16,33 @@ namespace WikipediaBiographyCreator.Services
 
         public Subject Resolve(Doc doc)
         {
+            // var longestName = obit.Subject.NameVersions.OrderBy(n => n.Length).Last();
+
+            var subjectName = ResolveSubjectName(doc);
+
             return new Subject
             {
-                Name = ResolveSubjectName(doc),
-                NameVersions = ResolveNameVersions(doc),
+                Name = subjectName,
+                CandidateName = GetNameVersions(subjectName).OrderBy(nv => nv.Length).Last(),
                 YearOfBirth = -1, // Not available in the API response
                 YearOfDeath = -1, // Not available in the API response
             };
         }
 
-        public List<string> ResolveNameVersions(Doc doc)
+        public List<string> GetNameVersions(string subjectName)
         {
-            string name = ResolveSubjectName(doc);
-
-            int i = name.IndexOf(",");
+            int i = subjectName.IndexOf(",");
 
             if (i == -1) // Just one name
-                return new List<string> { name.Capitalize() };
+                return new List<string> { subjectName.Capitalize() };
 
             // "BAUMFELD," in request March 1988
-            if (!name.Contains(' '))
-                return new List<string> { name.Replace(",", "").Capitalize() };
+            if (!subjectName.Contains(' '))
+                return new List<string> { subjectName.Replace(",", "").Capitalize() };
 
-            string surnames = name.Substring(0, i).Capitalize();
+            string surnames = subjectName.Substring(0, i).Capitalize();
 
-            string firstnames = name.Substring(i + 1).Trim();
+            string firstnames = subjectName.Substring(i + 1).Trim();
             firstnames = AdjustFirstNames(firstnames, out string suffix);
 
             return _nameVersionService.GetNameVersions(firstnames, surnames, suffix);

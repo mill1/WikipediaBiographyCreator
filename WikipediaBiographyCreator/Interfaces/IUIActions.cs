@@ -2,8 +2,8 @@
 {
     public interface IUIActions
     {
-        void GuardianObituaries();
-        void NYTimesObituaries();
+        void ShowGuardianObituaries();
+        void ShowNYTimesObituaries();
         void TestStuff();
     }
 }

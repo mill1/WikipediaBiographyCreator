@@ -14,36 +14,28 @@ namespace WikipediaBiographyCreator.Services
             _nyTimesApiService = nyTimesApiService;
         }
 
-        // TODO refactor DRY? : no will be combined in a single process
-        public void GuardianObituaries()
+        public void ShowGuardianObituaries()
         {
-            int year = GetIntegerInput("Year:");
-            int monthId = GetIntegerInput("Month id:");
-
-            var obits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
-
-            ConsoleFormatter.WriteInfo($"{obits.Count} Guardian obituaries have been resolved:");
-
-            foreach (var obit in obits)
-            {
-                ConsoleFormatter.WriteInfo($"{obit.Subject.Name}"); // PAGE={obit.Page} ({obit.Title})");
-            }
+            ShowObituaries(_guardianApiService, "Guardian");
         }
 
-        public void NYTimesObituaries()
+        public void ShowNYTimesObituaries()
+        {
+            ShowObituaries(_nyTimesApiService, "NYTimes");
+        }
+
+        private void ShowObituaries(IApiService apiService, string sourceName)
         {
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
 
-            var obits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
+            var obits = apiService.ResolveObituariesOfMonth(year, monthId);
 
-            ConsoleFormatter.WriteInfo($"{obits.Count} NYTimes obituaries have been resolved:");
+            ConsoleFormatter.WriteInfo($"{obits.Count} {sourceName} obituaries have been resolved:");
 
             foreach (var obit in obits)
             {
-                var longestName = obit.Subject.NameVersions.OrderBy(n => n.Length).Last();
-
-                ConsoleFormatter.WriteInfo($"{longestName}"); // ({obit.Subject.Name})");
+                ConsoleFormatter.WriteInfo($"{obit.Subject.CandidateName} ({obit.Subject.Name})");
             }
         }
 

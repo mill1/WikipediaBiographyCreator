@@ -1,4 +1,5 @@
-﻿using WikipediaBiographyCreator.Interfaces;
+﻿using System.Text.RegularExpressions;
+using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.Guardian;
 
@@ -8,20 +9,15 @@ namespace WikipediaBiographyCreator.Services
     {
         public Subject Resolve(Result obituary)
         {
+            string subjectName = ResolveSubjectName(obituary);
+
             return new Subject
             {
-                Name = ResolveSubjectName(obituary),
-                NameVersions = ResolveNameVersions(obituary)
+                Name = subjectName,
+                CandidateName = GetCandidateName(subjectName),
+                YearOfBirth = -1, // TODO prop. later toevoegen
+                YearOfDeath = -1, // TODO prop. later toevoegen
             };
-        }
-
-        public List<string> ResolveNameVersions(Result obituary)
-        {
-            string name = ResolveSubjectName(obituary);
-
-            // Sonce we cannot distinguish bewteen first names and surnames and we return the name as is.
-            // We will use fuzzy matching later to match with NYTimes obituary subjects.
-            return new List<string> { name };
         }
 
         private string ResolveSubjectName(Result obituary)
@@ -52,6 +48,18 @@ namespace WikipediaBiographyCreator.Services
                 subjectName = subjectName.Substring(pos + 1).Trim();
 
             return SanitizeSubjectName(subjectName);
+        }
+
+        private static string GetCandidateName(string subjectName)
+        {
+            // Replace all single-character words (A-Z) with "X." if not at the end of the string.
+            var GetCandidateName = Regex.Replace(
+                subjectName,
+                @"\b([A-Z])\b(?!$)",
+                "$1."
+            );
+
+            return GetCandidateName;
         }
 
         private static string SanitizeSubjectName(string subjectName)
