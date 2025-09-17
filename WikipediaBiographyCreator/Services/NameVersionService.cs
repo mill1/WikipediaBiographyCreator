@@ -9,7 +9,7 @@ namespace WikipediaBiographyCreator.Services
         /// </summary>
         /// <param name="firstnames"> First names, e.g. "John", "John Jack", "John J.", "J. J.", "John J. K.", "J. J. K."  ></param>
         /// <param name="surnames"> Surnames, e.g. "Rambo", "Rambo Matrix", "Rambo-Matrix"  ></param>
-        /// <param name="suffix"> Suffix, e.g. "Jr.", "Sr.", "II", "4TH"  ></param>
+        /// <param name="suffix"> Suffix, e.g. "Jr.", "Sr.", "II"  ></param>
         public List<string> GetNameVersions(string firstnames, string surnames, string suffix)
         {
             var results = new List<string>();
