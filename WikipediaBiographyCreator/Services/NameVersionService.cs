@@ -4,101 +4,84 @@ namespace WikipediaBiographyCreator.Services
 {
     public class NameVersionService : INameVersionService
     {
-        // TODO: extra version: loose last sur name if multiple surnames: Frances Gershwin Godowsky -> Frances Godowsky
-        // TODO: make tests for this service
-
+        /// <summary>
+        /// Returns different variations of a name based on firstname(s), lastname(s) and optional suffix
+        /// </summary>
+        /// <param name="firstnames"> First names, e.g. "John", "John Jack", "John J.", "J. J.", "John J. K.", "J. J. K."  ></param>
+        /// <param name="surnames"> Surnames, e.g. "Rambo", "Rambo Matrix", "Rambo-Matrix"  ></param>
+        /// <param name="suffix"> Suffix, e.g. "Jr.", "Sr.", "II", "4TH"  ></param>
         public List<string> GetNameVersions(string firstnames, string surnames, string suffix)
         {
-            if (string.IsNullOrEmpty(suffix))
+            var results = new List<string>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            string BuildName(string f, string s, string suf) =>
+                string.Join(" ", new[] { f, s, suf }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+            // Split tokens
+            var firstnameParts = firstnames.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var surnameParts = surnames.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            // Firstname variants: all parts, and only first part
+            var allFirstnames = string.Join(" ", firstnameParts);
+            var onlyFirst = firstnameParts.Length > 0 ? firstnameParts[0] : string.Empty;
+
+            // Surname variants: all parts, and only first surname (strip after hyphen if present)
+            var allSurnames = string.Join(" ", surnameParts);
+            string onlyFirstSurname = string.Empty;
+            if (surnameParts.Length > 0)
             {
-                if (HasNameInitial(firstnames))
-                    return GetNameVersionsInitialsNoSuffix(firstnames, surnames);
-                else
-                    return new List<string> { $"{firstnames} {surnames}" };
+                var firstSurnameToken = surnameParts[0];
+                var hyphenIndex = firstSurnameToken.IndexOf('-');
+                onlyFirstSurname = hyphenIndex > 0 ? firstSurnameToken.Substring(0, hyphenIndex) : firstSurnameToken;
             }
-            else
+
+            // Build ordered variant lists (avoid adding identical variants twice)
+            var surnameVariants = new List<string>();
+            if (!string.IsNullOrWhiteSpace(allSurnames))
+                surnameVariants.Add(allSurnames);
+
+            if (!string.IsNullOrWhiteSpace(onlyFirstSurname)
+                && !string.Equals(onlyFirstSurname, allSurnames, StringComparison.OrdinalIgnoreCase))
             {
-                if (HasNameInitial(firstnames))
-                    return GetNameVersionsInitials(firstnames, surnames, suffix);
-                else
-                    return GetNameVersionsNoInitials(firstnames, surnames, suffix);
+                surnameVariants.Add(onlyFirstSurname);
             }
-        }
 
-        private List<string> GetNameVersionsNoInitials(string firstnames, string surnames, string suffix)
-        {
-            return new List<string>
+            var firstnameVariants = new List<string>();
+            if (!string.IsNullOrWhiteSpace(allFirstnames))
+                firstnameVariants.Add(allFirstnames);
+
+            if (!string.IsNullOrWhiteSpace(onlyFirst)
+                && !string.Equals(onlyFirst, allFirstnames, StringComparison.OrdinalIgnoreCase))
             {
-                $"{firstnames} {surnames} {suffix}",
-                $"{firstnames} {surnames}"
-            };
-        }
+                firstnameVariants.Add(onlyFirst);
+            }
 
-        private List<string> GetNameVersionsInitials(string firstnames, string surnames, string suffix)
-        {
-            return new List<string>
+            // Iterate surname variants outer, firstname inner, suffix options inner-most
+            foreach (var sVar in surnameVariants)
             {
-                $"{FixNameInitials(firstnames, false)} {surnames} {suffix}",
-                $"{FixNameInitials(firstnames, true)} {surnames} {suffix}",
-                $"{FixNameInitials(firstnames, false)} {surnames}",
-                $"{FixNameInitials(firstnames, true)} {surnames}"
-            };
-        }
-
-        private List<string> GetNameVersionsInitialsNoSuffix(string firstnames, string surnames)
-        {
-            return new List<string>{
-                $"{FixNameInitials(firstnames, false)} {surnames}",
-                $"{FixNameInitials(firstnames, true)} {surnames}" };
-        }
-
-        private string FixNameInitials(string firstnames, bool remove)
-        {
-            string @fixed = "";
-
-            var names = firstnames.Split(" ");
-
-            for (int i = 0; i < names.Length; i++)
-            {
-                if (IsNameInitial(names[i]))
+                foreach (var fVar in firstnameVariants)
                 {
-                    // Keep the first initial always
-                    if (i == 0)
+                    if (string.IsNullOrWhiteSpace(fVar) && string.IsNullOrWhiteSpace(sVar))
+                        continue;
+
+                    if (!string.IsNullOrEmpty(suffix))
                     {
-                        @fixed += $"{names[i]}. ";
+                        var withSuffix = BuildName(fVar, sVar, suffix);
+                        if (seen.Add(withSuffix)) results.Add(withSuffix);
+
+                        var withoutSuffix = BuildName(fVar, sVar, "");
+                        if (seen.Add(withoutSuffix)) results.Add(withoutSuffix);
                     }
                     else
                     {
-                        if (!remove)
-                        {
-                            @fixed += $"{names[i]}. ";
-                        }
+                        var name = BuildName(fVar, sVar, "");
+                        if (seen.Add(name)) results.Add(name);
                     }
-                }
-                else
-                {
-                    @fixed += $"{names[i]} ";
                 }
             }
 
-            return @fixed.Trim();
-        }
-
-        private bool HasNameInitial(string firstnames)
-        {
-            foreach (string name in firstnames.Split(" "))
-                if (IsNameInitial(name))
-                    return true;
-
-            return false;
-        }
-
-        private bool IsNameInitial(string name)
-        {
-            if (name.Length == 1 && name.Equals(name.ToUpper()))
-                return true;
-
-            return false;
+            return results;
         }
     }
 }

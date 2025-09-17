@@ -70,14 +70,32 @@ namespace WikipediaBiographyCreator.Services
             if (firstnames.Length < 3)
                 return firstnames;
 
-            // Get the last word of the first names
-            string tail = firstnames.Split(' ').Last().ToUpper();
+            firstnames = CapitalizeFirstNamesAndCutSuffix(firstnames, ref suffix);
 
-            // Loose any suffixes which are not part of the first name(s)
+            // Add dot after initials, if any
+            var names = firstnames.Split(' ');
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                if (names[i].Length == 1)
+                    names[i] = names[i] + ".";
+            }
+            firstnames = string.Join(" ", names);
+
+            return firstnames;
+        }
+
+        private static string CapitalizeFirstNamesAndCutSuffix(string firstnames, ref string suffix)
+        {
+            //  Cut suffixes which are not part of the first name(s) but should be put at the end of the name
             // - Jr or Sr
             // - II, III, .. X 
             // - 2D, 3D, 4TH .. 9TH
             // Note : 'I' is kept since it can also mean I. (e.g. SAULS, JOHN I -> John I. Sauls). Same with V and X (OGASAWARA, FRANK X)
+
+            // Get the last word of the first name(s)
+            string tail = firstnames.Split(' ').Last().ToUpper();
+
             switch (tail)
             {
                 case "JR":
@@ -110,6 +128,7 @@ namespace WikipediaBiographyCreator.Services
                     suffix = "IV";
                     return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
                 case "5TH":
+                    // TODO testen
                     suffix = "V";
                     return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
                 case "6TH":

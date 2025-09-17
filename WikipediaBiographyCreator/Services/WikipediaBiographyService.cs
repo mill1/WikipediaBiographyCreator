@@ -47,37 +47,20 @@ namespace WikipediaBiographyCreator.Services
                 var bestMatch = FuzzySharp.Process.ExtractOne(guardianObit.Subject.NormalizedName, nyTimesObitNames);
                 int scoreThreshold = GetScoreThresholdSetting();
 
-                if (bestMatch.Score >= 0) // scoreThreshold)
+                if (bestMatch.Score >= scoreThreshold)
                 {
                     // ConsoleFormatter.WriteDebug($"{guardianObit} -> {bestMatch.Value} (score: {bestMatch.Score})");
-
-                    // For each match:
-                    // - Get the body text of the Guardian obituary
-                    // - Check if a corresponding Wikipedia article exists
-                    // - If not, create a new Wikipedia article draft
-
                     var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
 
                     // Check for existing Wikipedia article
-                    // We need to resolve the YoB AND YoD first in case of disambiguation pages
+                    // We need to resolve the YoB and YoD first in case of disambiguation pages
 
-                    ConsoleFormatter.WriteDebug(guardianObit.WebUrl);
+                    //ConsoleFormatter.WriteDebug(guardianObit.WebUrl);
 
-                    // Display the 60 characters after the last occurence of string ' died ' in the body text for debugging purposes.
-                    int pos = bodyText.LastIndexOf(" died ");
-                    if (pos >= 0)
-                    {
-                        int start = pos + " died ".Length;
-                        int length = Math.Min(60, bodyText.Length - start);
-                        string snippet = bodyText.Substring(start, length);
-                        ConsoleFormatter.WriteDebug($"...died {snippet}...");
-                    }
-                    else
-                    {
-                        ConsoleFormatter.WriteDebug("The word ' died ' was not found in the obituary text.");
-                    }
+                    var (yearOfBirth, yearOfDeath) = _guardianObituarySubjectService.ResolveYoBAndYoD(bodyText);
 
-                    var (YearOfBirth, YearOfDeath) = _guardianObituarySubjectService.ResolveYoBAndYoD(bodyText);
+                    if (yearOfDeath == -1)
+                        yearOfDeath = year; // Use the obituary year as YoD if we cannot resolve it from the text                        
 
                     // Determine the name versions for which we need to check Wikipedia
                     // TODO: resolve the first and last name from the NYTimes obit data
