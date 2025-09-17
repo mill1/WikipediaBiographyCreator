@@ -95,13 +95,16 @@ namespace WikipediaBiographyCreator.Services
 
             // Get the last word of the first name(s)
             string tail = firstnames.Split(' ').Last().ToUpper();
+            string normalized = string.Empty;
 
             switch (tail)
             {
                 case "JR":
                 case "SR":
                     suffix = tail.Capitalize() + ".";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
+
                 case "II":
                 case "III":
                 case "IV":
@@ -110,45 +113,58 @@ namespace WikipediaBiographyCreator.Services
                 case "VIII":
                 case "IX":
                     suffix = tail;
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
 
                 case "1T":
                 case "1ST":
                     suffix = "I";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
+
                 case "2D":
                 case "2ND":
                     suffix = "II";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "3D":
                 case "3RD":
                     suffix = "III";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "4TH":
                     suffix = "IV";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "5TH":
-                    // TODO testen
                     suffix = "V";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "6TH":
                     suffix = "VI";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "7TH":
                     suffix = "VII";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "8TH":
                     suffix = "VIII";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "9TH":
                     suffix = "IX";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 case "10TH":
                     suffix = "X";
-                    return firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
+                    break;
                 default:
-                    return firstnames.Capitalize();
+                    normalized = firstnames.Capitalize();
+                    break;
             }
+            return normalized.Capitalize();
         }
     }
 }
