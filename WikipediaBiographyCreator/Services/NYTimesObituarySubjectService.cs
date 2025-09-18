@@ -85,86 +85,72 @@ namespace WikipediaBiographyCreator.Services
             return firstnames;
         }
 
+        /// <summary>
+        /// Cut suffixes which are not part of the first name(s) but should be put at the end of the name.
+        /// </summary>
+        /// <param name="firstnames">Examples input firstnames: "RAMBO, JOHN", "ROCKEFELLER, JOHN 3D", "JOHN R. DOE"</param>
+        /// <param name="suffix">Examples suffixes: JR, SR, II, III, .. X, 2D, 3D, 4TH .. 9TH</param>
+        /// <returns></returns>
         private static string CapitalizeFirstNamesAndCutSuffix(string firstnames, ref string suffix)
         {
-            //  Cut suffixes which are not part of the first name(s) but should be put at the end of the name
-            // - Jr or Sr
-            // - II, III, .. X 
-            // - 2D, 3D, 4TH .. 9TH
-            // Note : 'I' is kept since it can also mean I. (e.g. SAULS, JOHN I -> John I. Sauls). Same with V and X (OGASAWARA, FRANK X)
+            if (string.IsNullOrWhiteSpace(firstnames))
+                return string.Empty;
 
-            // Get the last word of the first name(s)
-            string tail = firstnames.Split(' ').Last().ToUpper();
-            string normalized = string.Empty;
+            // Normalize input
+            firstnames = firstnames.Trim();
 
-            switch (tail)
+            // Split into parts
+            var parts = firstnames.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var tail = parts.Last().ToUpperInvariant();
+
+            // Direct mappings (simple suffix -> replacement)
+            // 'I' is kept since it can also mean I. (e.g. SAULS, JOHN I -> John I. Sauls). Same with V and X (OGASAWARA, FRANK X)
+            var directMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                case "JR":
-                case "SR":
-                    suffix = tail.Capitalize() + ".";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
+                ["JR"] = "Jr.",
+                ["SR"] = "Sr.",
+                ["II"] = "II",
+                ["III"] = "III",
+                ["IV"] = "IV",
+                ["VI"] = "VI",
+                ["VII"] = "VII",
+                ["VIII"] = "VIII",
+                ["IX"] = "IX",
+                ["X"] = "X"
+            };
 
-                case "II":
-                case "III":
-                case "IV":
-                case "VI":
-                case "VII":
-                case "VIII":
-                case "IX":
-                    suffix = tail;
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
+            // Ordinal/number-based mappings
+            var ordinalMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["1T"] = "I",
+                ["1ST"] = "I",
+                ["2D"] = "II",
+                ["2ND"] = "II",
+                ["3D"] = "III",
+                ["3RD"] = "III",
+                ["4TH"] = "IV",
+                ["5TH"] = "V",
+                ["6TH"] = "VI",
+                ["7TH"] = "VII",
+                ["8TH"] = "VIII",
+                ["9TH"] = "IX",
+                ["10TH"] = "X"
+            };
 
-                case "1T":
-                case "1ST":
-                    suffix = "I";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-
-                case "2D":
-                case "2ND":
-                    suffix = "II";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "3D":
-                case "3RD":
-                    suffix = "III";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "4TH":
-                    suffix = "IV";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "5TH":
-                    suffix = "V";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "6TH":
-                    suffix = "VI";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "7TH":
-                    suffix = "VII";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "8TH":
-                    suffix = "VIII";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "9TH":
-                    suffix = "IX";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                case "10TH":
-                    suffix = "X";
-                    normalized = firstnames.Substring(0, firstnames.LastIndexOf(' ')).Trim();
-                    break;
-                default:
-                    normalized = firstnames.Capitalize();
-                    break;
+            if (directMappings.TryGetValue(tail, out var mappedSuffix) ||
+                ordinalMappings.TryGetValue(tail, out mappedSuffix))
+            {
+                suffix = mappedSuffix;
+                parts = parts.Take(parts.Length - 1).ToArray();
             }
-            return normalized.Capitalize();
+            else
+            {
+                // No suffix: just normalize capitalization
+                suffix = string.Empty;
+            }
+
+            var normalized = string.Join(" ", parts).Capitalize();
+            return normalized;
         }
     }
 }

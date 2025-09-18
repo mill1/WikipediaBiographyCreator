@@ -15,6 +15,47 @@ namespace WikipediaBiographyCreator.Tests
         }
 
         [TestMethod]
+        public void Capitalize_Firstname()
+        {
+            // Act
+            var versions = _service.GetNameVersions("RAMBO, JOHN");
+
+            // Assert
+            versions.Should().HaveCount(1);
+            versions.Should().ContainInOrder(
+                "John Rambo"
+            );
+        }
+
+        [TestMethod]
+        public void CreateVersion_OptionSuffix()
+        {
+            // Act
+            var versions = _service.GetNameVersions("RAMBO, JOHN II");
+
+            // Assert
+            versions.Should().HaveCount(2);
+            versions.Should().ContainInOrder(
+                "John Rambo II",
+                "John Rambo"
+            );
+        }
+
+        [TestMethod]
+        public void AddPointToSuffix_Suffix()
+        {
+            // Act
+            var versions = _service.GetNameVersions("ROCKEFELLER, JOHN JR");
+
+            // Assert
+            versions.Should().HaveCount(2);
+            versions.Should().ContainInOrder(
+                "John Rockefeller Jr.",
+                "John Rockefeller"
+            );
+        }
+
+        [TestMethod]
         public void Replace_Suffix()
         {
             // Act
@@ -29,7 +70,7 @@ namespace WikipediaBiographyCreator.Tests
         }
 
         [TestMethod]
-        public void Escape_Initial()
+        public void Escape_ValidInitial()
         {
             // Act
             var versions = _service.GetNameVersions("ROCKEFELLER, JOHN V");
