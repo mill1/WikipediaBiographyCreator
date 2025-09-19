@@ -28,6 +28,21 @@ namespace WikipediaBiographyCreator.Tests
         }
 
         [TestMethod]
+        public void CreateVersions_WithInitials()
+        {
+            // Act
+            // TODO RAMBO, JOHN J
+            var versions = _service.GetNameVersions("Warwick, William E");
+
+            // Assert
+            versions.Should().HaveCount(2);
+            versions.Should().ContainInOrder(
+                "William E. Warwick",
+                "William Warwick"
+            );
+        }
+
+        [TestMethod]
         public void CreateVersion_OptionSuffix()
         {
             // Act

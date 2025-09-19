@@ -26,16 +26,7 @@ namespace WikipediaBiographyCreator.Services
 
             ConsoleFormatter.WriteInfo($"Finding candidates for {year}-{monthId}...");
 
-            var candidate = _wikipediaBiographyService.FindCandidate(year, monthId);
-
-            if (candidate == null)
-            {
-                ConsoleFormatter.WriteInfo("No evident candidate has been found :(");
-            }
-            else
-            {
-                ConsoleFormatter.WriteSuccess($"Candidate found!\r\n{candidate}");
-            }
+            _wikipediaBiographyService.FindCandidates(year, monthId);
         }
 
         public void ShowGuardianObituaries()

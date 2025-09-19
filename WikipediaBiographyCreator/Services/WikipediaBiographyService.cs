@@ -31,7 +31,7 @@ namespace WikipediaBiographyCreator.Services
             _wikipediaApiService = wikipediaApiService;
         }
 
-        public Candidate FindCandidate(int year, int monthId)
+        public void FindCandidates(int year, int monthId)
         {
             var guardianObits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
             var nyTimesObits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
@@ -49,12 +49,16 @@ namespace WikipediaBiographyCreator.Services
                     //ConsoleFormatter.WriteDebug(guardianObit.WebUrl);
 
                     // Determine the name versions for which we need to check Wikipedia
-                    var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(bestMatch.Value);
+                    var nyTimesSubject = nyTimesObits.Where(o => o.Subject.NormalizedName == bestMatch.Value).Select(o => o.Subject.Name).First();
+
+                    var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(nyTimesSubject);
                     var exists = false;
 
                     // checked if any of the versions exist as an article on Wikipedia. Break if you found it.
                     foreach (var version in nameVersions)
                     {
+                        ConsoleFormatter.WriteDebug($"Checking version {version}");
+
                         var pageTitle = _wikipediaApiService.GetPageTitle(version, out bool disambiguation);
 
                         if (pageTitle != string.Empty)
@@ -68,6 +72,18 @@ namespace WikipediaBiographyCreator.Services
 
                                 // Get the page content of the disambiguation page
                                 var content = _wikipediaApiService.GetPageContent(pageTitle);
+
+                                if (dateOfBirth != DateOnly.MinValue && dateOfDeath != DateOnly.MinValue)
+                                {
+                                    var entry = FindDisambiguationEntry(content, dateOfBirth.Year, dateOfDeath.Year);
+
+                                    if (entry != null)
+                                    {
+                                        exists = true;
+                                        ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+                                        break;
+                                    }
+                                }
 
                                 if (dateOfBirth == DateOnly.MinValue && dateOfDeath == DateOnly.MinValue)
                                 {
@@ -95,35 +111,13 @@ namespace WikipediaBiographyCreator.Services
                                         ConsoleFormatter.WriteInfo($"Page exists: {entry}");
                                         break;
                                     }
-
-                                    // We couldn't find the name in the disambiguation page; possible candidate!
-                                    exists = true;
-                                    var candidate = CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
-                                    ConsoleFormatter.WriteSuccess($"Possible candidate: {candidate}");
-                                    break;
                                 }
 
-
-                                if (dateOfBirth != DateOnly.MinValue && dateOfDeath != DateOnly.MinValue)
-                                {
-                                    var entry = FindDisambiguationEntry(content, dateOfBirth.Year, dateOfDeath.Year);
-
-                                    if (entry != null)
-                                    {
-                                        exists = true;
-                                        ConsoleFormatter.WriteInfo($"Page exists: {entry}");
-                                        break;
-                                    }
-                                }
-
-
-
+                                // We couldn't find the name in the disambiguation page; possible candidate!
                                 exists = true;
-
-                                // If January also check to year before
-
-                                //if (yearOfDeath == -1)
-                                //    yearOfDeath = year; // Use the obituary year as YoD if we cannot resolve it from the text  
+                                var candidate = CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
+                                ConsoleFormatter.WriteSuccess($"Possible candidate: {candidate}");
+                                break;
                             }
                             else
                             {
@@ -136,14 +130,12 @@ namespace WikipediaBiographyCreator.Services
 
                     if (!exists)
                     {
-                        // We are in business!
-                        return CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
+                        // We could be in business!
+                        var candidate = CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
+                        ConsoleFormatter.WriteSuccess($"Strong candidate: {candidate}");
                     }
                 }
             }
-
-            // No candidate found :(
-            return null;
         }
 
         public static string? FindDisambiguationEntry(string wikiText, int birthYear, int deathYear)
