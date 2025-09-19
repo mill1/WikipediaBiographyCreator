@@ -35,8 +35,7 @@ namespace WikipediaBiographyCreator.Services
 
                 /*
                     Many Guardian obituary texts end stating the DoB and DoD in this exact format:
-                    [Name], [profession], born [DoB]; died [DoD]
-                    e.g.
+                    [Name], [profession], born [DoB]; died [DoD]  e.g.
                     Giorgio Armani, fashion designer, born 11 July 1934; died 4 September 2025
 
                     Examples of snippets found:
@@ -64,34 +63,6 @@ namespace WikipediaBiographyCreator.Services
                 }
             }
             ConsoleFormatter.WriteDebug($"Resolved YoB: {yearOfBirth}, YoD: {yearOfDeath}");
-
-            return (yearOfBirth, yearOfDeath);
-        }
-
-
-        public (int YearOfBirth, int YearOfDeath) ResolveYoBAndYoD2(string obituaryText)
-        {
-            // YoB = Year of Birth, YoD = Year of Death, DoB = Date of Birth, DoD = Date of Death
-            int yearOfBirth = -1;
-            int yearOfDeath = -1;
-
-
-            int pos = obituaryText.LastIndexOf(" born ");
-            if (pos >= 0)
-            {
-                int start = pos + " born ".Length;
-                int length = Math.Min(60, obituaryText.Length - start);
-                string snippet = obituaryText.Substring(start, length);
-                ConsoleFormatter.WriteDebug($"Start date data:  {snippet}...");
-
-
-
-
-            }
-            else
-            {
-                ConsoleFormatter.WriteDebug("The word ' born ' was not found in the obituary text.");
-            }
 
             return (yearOfBirth, yearOfDeath);
         }

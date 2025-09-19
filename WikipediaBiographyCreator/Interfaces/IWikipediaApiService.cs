@@ -2,6 +2,6 @@
 {
     public interface IWikipediaApiService
     {
-        string GetWikipediaArticleName(string nameVersion);
+        string GetWikipediaPageTitle(string nameVersion);
     }
 }

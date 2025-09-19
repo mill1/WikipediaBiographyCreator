@@ -2,7 +2,7 @@
 {
     public interface IUIActions
     {
-        void FindCandidates();
+        void FindCandidate();
         void ShowGuardianObituaries();
         void ShowNYTimesObituaries();
         void TestStuff();

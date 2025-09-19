@@ -43,6 +43,7 @@ namespace WikipediaBiographyCreator.Services
                 .Select(doc => new Obituary
                 {
                     Title = doc.headline.main,
+                    WebUrl = doc.web_url,
                     Subject = _obituarySubjectService.Resolve(doc)
                 })
                 .GroupBy(o => o.Subject.NormalizedName).Select(grp => grp.First()) // Remove duplicates 

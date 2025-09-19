@@ -39,6 +39,7 @@ namespace WikipediaBiographyCreator
             .AddSingleton<ConsoleUI>()
             .AddSingleton<IUIActions, UIActions>()
             .AddScoped<IAssemblyService, AssemblyService>()
+            .AddScoped<IWikipediaApiService, WikipediaApiService>()
             .AddScoped<IWikipediaBiographyService, WikipediaBiographyService>()
             .AddScoped<INameVersionService, NameVersionService>()
             .AddScoped<IGuardianApiService, GuardianApiService>()

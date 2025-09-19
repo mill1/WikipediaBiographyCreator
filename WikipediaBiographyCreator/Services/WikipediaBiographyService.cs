@@ -11,35 +11,30 @@ namespace WikipediaBiographyCreator.Services
         private readonly IGuardianApiService _guardianApiService;
         private readonly INYTimesApiService _nyTimesApiService;
         private readonly IGuardianObituarySubjectService _guardianObituarySubjectService;
+        private readonly INYTimesObituarySubjectService _nyTimesObituarySubjectService;
+        private readonly IWikipediaApiService _wikipediaApiService;
 
         public WikipediaBiographyService(
             IConfiguration configuration,
             IGuardianApiService guardianApiService,
             INYTimesApiService nyTimesApiService,
-            IGuardianObituarySubjectService guardianObituarySubjectService)
+            IGuardianObituarySubjectService guardianObituarySubjectService,
+            INYTimesObituarySubjectService nyTimesObituarySubjectService,
+            IWikipediaApiService wikipediaApiService)
         {
             _configuration = configuration;
             _guardianApiService = guardianApiService;
             _nyTimesApiService = nyTimesApiService;
             _guardianObituarySubjectService = guardianObituarySubjectService;
+            _nyTimesObituarySubjectService = nyTimesObituarySubjectService;
+            _wikipediaApiService = wikipediaApiService;
         }
 
-        public List<Biography> FindCandidates(int year, int monthId)
+        public Candidate FindCandidate(int year, int monthId)
         {
             var guardianObits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
-
-            //TMP: For testing purposes only
-            List<string> nyTimesObitNames = null;
-
-            if (true)
-                nyTimesObitNames = GetNYTimesDataJan1999();
-            else
-            {
-                var nyTimesObits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
-                nyTimesObitNames = nyTimesObits.Select(o => o.Subject.NormalizedName).ToList();
-            }
-
-            ConsoleFormatter.WriteDebug("Subject Guardian -> Subject NYTimes (score)");
+            var nyTimesObits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
+            var nyTimesObitNames = nyTimesObits.Select(o => o.Subject.NormalizedName).ToList();
 
             foreach (Obituary guardianObit in guardianObits)
             {
@@ -49,29 +44,55 @@ namespace WikipediaBiographyCreator.Services
 
                 if (bestMatch.Score >= scoreThreshold)
                 {
-                    // ConsoleFormatter.WriteDebug($"{guardianObit} -> {bestMatch.Value} (score: {bestMatch.Score})");
-                    var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
-
-                    // Check for existing Wikipedia article
-                    // We need to resolve the YoB and YoD first in case of disambiguation pages
-
+                    //ConsoleFormatter.WriteDebug($"{guardianObit} -> {bestMatch.Value} (score: {bestMatch.Score})");
                     //ConsoleFormatter.WriteDebug(guardianObit.WebUrl);
 
-                    var (yearOfBirth, yearOfDeath) = _guardianObituarySubjectService.ResolveYoBAndYoD(bodyText);
-
-                    if (yearOfDeath == -1)
-                        yearOfDeath = year; // Use the obituary year as YoD if we cannot resolve it from the text                        
-
                     // Determine the name versions for which we need to check Wikipedia
-                    // TODO: resolve the first and last name from the NYTimes obit data
+                    var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(bestMatch.Value);
+                    var exists = false;
+
+                    // checked if any of the versions exist as an article on Wikipedia
+                    foreach (var version in nameVersions)
+                    {
+                        var wikipediaPageTitle = _wikipediaApiService.GetWikipediaPageTitle(version);
+
+                        if (wikipediaPageTitle != string.Empty)
+                        {
+                            exists = true;
+                            ConsoleFormatter.WriteInfo($"Page exists: {wikipediaPageTitle}");
+                            break;
+                        }
+                    }
+
+                    if (!exists)
+                    {
+                        // We are in business!
+                        return new Candidate
+                        {
+                            Name = bestMatch.Value,
+                            WebUrlGuardian = guardianObit.WebUrl,
+                            WebUrlNYTimes = nyTimesObits.Where(o => o.Subject.NormalizedName == bestMatch.Value).Select(o => o.WebUrl).First()
+                        };
+                    }
+
+
+                    // If we run into a disambiguation pages we need to resolve the YoB and YoD. In most
+                    // cases these be found in the body text of the Guardian article.
+
+                    //var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
+                    //var (yearOfBirth, yearOfDeath) = _guardianObituarySubjectService.ResolveYoBAndYoD(bodyText);
+
+                    //if (yearOfDeath == -1)
+                    //    yearOfDeath = year; // Use the obituary year as YoD if we cannot resolve it from the text                        
 
                 }
             }
 
-            return new List<Biography>();
+            // No candidates found :(
+            return null;
         }
 
-        public Biography CreateBiography()
+        public Candidate CreateBiography()
         {
             throw new NotImplementedException();
         }
@@ -88,138 +109,6 @@ namespace WikipediaBiographyCreator.Services
             }
 
             return scoreThreshold;
-        }
-
-        private List<string> GetNYTimesDataJan1999()
-        {
-            return new List<string>
-            {
-                "Abbie Hoffman",
-                "Abdel-latif Baghdadi",
-                "Arthur C. Fatt",
-                "August Everding",
-                "Bennett Harrison",
-                "Bessie Delany",
-                "Betty Bryant",
-                "Brian Moore",
-                "Bryn Jones",
-                "Buzz Kulik",
-                "Carl Elliott",
-                "Charles Brown",
-                "Charles Earl Cobb",
-                "Charles Francis Adams",
-                "Charles G. Zubrod",
-                "Charles Luckman",
-                "Clare Potter",
-                "Damon Wright",
-                "David C. Adams",
-                "David Dempsey",
-                "David Manners",
-                "David Newton",
-                "David W. Belin",
-                "Don Taylor",
-                "Edgar Nollner",
-                "Edward Joseph Kiernan",
-                "Edward M. Mervosh",
-                "Edward T. Parrack",
-                "Eric Crull Baade",
-                "Ernest Schier",
-                "Eugene S. Pulliam",
-                "Fabrizio De Andre",
-                "Florendo M. Visitacion",
-                "Frances Gershwin Godowsky",
-                "Fred Hopkins",
-                "Frederick Zissu",
-                "Gabor Carelli",
-                "Gavin W. H. Relly",
-                "Gayle Young",
-                "George Jackson Eder",
-                "George L. Mosse",
-                "Gilbert M. Haggerty",
-                "Gonzalo Torrente Ballester",
-                "Goro Yamaguchi",
-                "Hanna F. Sulner",
-                "Harold Edelman",
-                "Harold P. Spivak",
-                "Harvey Miller",
-                "Henry Cohen",
-                "Henry Paolucci",
-                "Henry Schwartz",
-                "Iron Eyes Cody",
-                "Jacques Lecoq",
-                "James Hammersetein",
-                "James Holmes",
-                "James Priest Gifford",
-                "Jane Clapperton Cushman",
-                "Jay Pritzker",
-                "Jerry Quarry",
-                "Jerzy Grotowski",
-                "Joan Engel Stern",
-                "John D. Mcdonald",
-                "John Frederick Nims",
-                "Jose Vela Zanetti",
-                "Judith S. Kestenberg",
-                "Jules W. Lederer",
-                "Katherine Bain",
-                "Leo Cherne",
-                "Leon M. Goldstein",
-                "Leonard C. Lewin",
-                "Lewis J. Gorin Jr.",
-                "Linwood P. Shipley",
-                "Lorin E. Price",
-                "Louis Jolyon West",
-                "Lucille Kallen",
-                "Manfred L. Karnovsky",
-                "Margaret Wentworth Owings",
-                "Mario Dario Grossi",
-                "Mark Warren",
-                "Marshall Perlin",
-                "Mary Ann Unger",
-                "Merle E. Frampton",
-                "Michael Petricciani",
-                "Miriam Freund-rosenthal",
-                "Monroe W. Karmin",
-                "Myles Tierney",
-                "Name Cannot Be Resolved. Main: William A. Lee Is De",
-                "Naomi Mitchison",
-                "Natale Laurendi",
-                "Ntsu Mokhehle",
-                "Orlandus Wilson",
-                "Paul Corser",
-                "Paul E. Manheim",
-                "Paul M. Zoll",
-                "Paul Metcalf",
-                "Philip Sterling",
-                "Pope",
-                "Richard Harold Freyberg",
-                "Rita V. Tishman",
-                "Robert Douglas",
-                "Robert E. Kirby",
-                "Robert S. Johnson",
-                "Robert Shaw",
-                "Rolf Liebermann",
-                "Ruth Rawlings Mott",
-                "Sammy Solovitz",
-                "Susan Strasberg",
-                "Ted Hustead",
-                "Terence Thornton Lewin",
-                "Theo Hios",
-                "Theodore Tannenwald Jr.",
-                "Thomas C. Mann",
-                "Thomas W. Binford",
-                "VERNON Berg III",
-                "Virginia Eloise Peterson Abelson",
-                "Virginia Verrill",
-                "W. Page Keeton",
-                "Walker Hancock",
-                "Walter Donald Kring",
-                "Walter H. Page",
-                "William Bentley Ball",
-                "William E. Hunt",
-                "William H. Whyte",
-                "William Milfred Batten",
-                "Zalman Chaim Bernstein"
-            };
         }
     }
 }

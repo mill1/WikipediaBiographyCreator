@@ -16,8 +16,6 @@ namespace WikipediaBiographyCreator.Services
 
         public Subject Resolve(Doc doc)
         {
-            // var longestName = obit.Subject.NameVersions.OrderBy(n => n.Length).Last();
-
             var subjectName = ResolveSubjectName(doc);
 
             return new Subject
@@ -38,12 +36,12 @@ namespace WikipediaBiographyCreator.Services
             if (!subjectName.Contains(' '))
                 return new List<string> { subjectName.Replace(",", "").Capitalize() };
 
-            string surnames = subjectName.Substring(0, i).Capitalize();
+            string surname = subjectName.Substring(0, i).Capitalize();
 
             string firstnames = subjectName.Substring(i + 1).Trim();
             firstnames = AdjustFirstNames(firstnames, out string suffix);
 
-            return _nameVersionService.GetNameVersions(firstnames, surnames, suffix);
+            return _nameVersionService.GetNameVersions(firstnames, surname, suffix);
         }
 
         private string ResolveSubjectName(Doc doc)
@@ -88,7 +86,7 @@ namespace WikipediaBiographyCreator.Services
         /// <summary>
         /// Cut suffixes which are not part of the first name(s) but should be put at the end of the name.
         /// </summary>
-        /// <param name="firstnames">Examples input firstnames: "RAMBO, JOHN", "ROCKEFELLER, JOHN 3D", "JOHN R. DOE"</param>
+        /// <param name="firstnames">Examples firstnames: "RAMBO, JOHN", "ROCKEFELLER, JOHN 3D", "JOHN R. DOE"</param>
         /// <param name="suffix">Examples suffixes: JR, SR, II, III, .. X, 2D, 3D, 4TH .. 9TH</param>
         /// <returns></returns>
         private static string CapitalizeFirstNamesAndCutSuffix(string firstnames, ref string suffix)

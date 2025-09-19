@@ -4,8 +4,8 @@ namespace WikipediaBiographyCreator.Interfaces
 {
     public interface IWikipediaBiographyService
     {
-        List<Biography> FindCandidates(int year, int monthId);
+        Candidate FindCandidate(int year, int monthId);
 
-        Biography CreateBiography();
+        Candidate CreateBiography();
     }
 }

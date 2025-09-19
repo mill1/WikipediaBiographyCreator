@@ -8,80 +8,42 @@ namespace WikipediaBiographyCreator.Services
         /// Returns different variations of a name based on firstname(s), lastname(s) and optional suffix
         /// </summary>
         /// <param name="firstnames"> First names, e.g. "John", "John Jack", "John J.", "J. J.", "John J. K.", "J. J. K."  ></param>
-        /// <param name="surnames"> Surnames, e.g. "Rambo", "Rambo Matrix", "Rambo-Matrix"  ></param>
+        /// <param name="surname"> Surname (by marriage), e.g. "Rambo". Maiden name is the last value in firstnames ></param>
         /// <param name="suffix"> Suffix, e.g. "Jr.", "Sr.", "II"  ></param>
-        public List<string> GetNameVersions(string firstnames, string surnames, string suffix)
+        public List<string> GetNameVersions(string firstnames, string surname, string suffix)
         {
             var results = new List<string>();
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             string BuildName(string f, string s, string suf) =>
                 string.Join(" ", new[] { f, s, suf }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
-            // Split tokens
+            // Split firstname tokens
             var firstnameParts = firstnames.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var surnameParts = surnames.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            // Firstname variants: all parts, and only first part
-            var allFirstnames = string.Join(" ", firstnameParts);
-            var onlyFirst = firstnameParts.Length > 0 ? firstnameParts[0] : string.Empty;
+            // Two firstname variants:
+            var allFirstnames = string.Join(" ", firstnameParts);          // all parts
+            var onlyFirst = firstnameParts.Length > 0 ? firstnameParts[0] : string.Empty; // first only
 
-            // Surname variants: all parts, and only first surname (strip after hyphen if present)
-            var allSurnames = string.Join(" ", surnameParts);
-            string onlyFirstSurname = string.Empty;
-            if (surnameParts.Length > 0)
+            // Helper to add versions with and without suffix
+            void AddWithSuffixOptions(string f, string s)
             {
-                var firstSurnameToken = surnameParts[0];
-                var hyphenIndex = firstSurnameToken.IndexOf('-');
-                onlyFirstSurname = hyphenIndex > 0 ? firstSurnameToken.Substring(0, hyphenIndex) : firstSurnameToken;
+                if (string.IsNullOrWhiteSpace(f) && string.IsNullOrWhiteSpace(s))
+                    return;
+
+                results.Add(BuildName(f, s, suffix));
+                if (!string.IsNullOrEmpty(suffix))
+                    results.Add(BuildName(f, s, ""));
             }
 
-            // Build ordered variant lists (avoid adding identical variants twice)
-            var surnameVariants = new List<string>();
-            if (!string.IsNullOrWhiteSpace(allSurnames))
-                surnameVariants.Add(allSurnames);
-
-            if (!string.IsNullOrWhiteSpace(onlyFirstSurname)
-                && !string.Equals(onlyFirstSurname, allSurnames, StringComparison.OrdinalIgnoreCase))
-            {
-                surnameVariants.Add(onlyFirstSurname);
-            }
-
-            var firstnameVariants = new List<string>();
+            // Add "all firstnames" version(s)
             if (!string.IsNullOrWhiteSpace(allFirstnames))
-                firstnameVariants.Add(allFirstnames);
+                AddWithSuffixOptions(allFirstnames, surname);
 
-            if (!string.IsNullOrWhiteSpace(onlyFirst)
-                && !string.Equals(onlyFirst, allFirstnames, StringComparison.OrdinalIgnoreCase))
-            {
-                firstnameVariants.Add(onlyFirst);
-            }
+            // Add "only first firstname" version(s) if different
+            if (!string.IsNullOrWhiteSpace(onlyFirst) && onlyFirst != allFirstnames)
+                AddWithSuffixOptions(onlyFirst, surname);
 
-            // Iterate surname variants outer, firstname inner, suffix options inner-most
-            foreach (var sVar in surnameVariants)
-            {
-                foreach (var fVar in firstnameVariants)
-                {
-                    if (string.IsNullOrWhiteSpace(fVar) && string.IsNullOrWhiteSpace(sVar))
-                        continue;
-
-                    if (!string.IsNullOrEmpty(suffix))
-                    {
-                        var withSuffix = BuildName(fVar, sVar, suffix);
-                        if (seen.Add(withSuffix)) results.Add(withSuffix);
-
-                        var withoutSuffix = BuildName(fVar, sVar, "");
-                        if (seen.Add(withoutSuffix)) results.Add(withoutSuffix);
-                    }
-                    else
-                    {
-                        var name = BuildName(fVar, sVar, "");
-                        if (seen.Add(name)) results.Add(name);
-                    }
-                }
-            }
-
-            return results;
+            return results.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
     }
 }

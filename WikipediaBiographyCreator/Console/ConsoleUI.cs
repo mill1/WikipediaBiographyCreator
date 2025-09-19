@@ -15,7 +15,7 @@ namespace WikipediaBiographyCreator.Console
 
         private static class MenuOptions
         {
-            public const string FindCandidates = "f";
+            public const string FindCandidate = "f";
             public const string GuardianObits = "g";
             public const string NYTimesObits = "n";
             public const string TestStuff = "t";
@@ -28,7 +28,7 @@ namespace WikipediaBiographyCreator.Console
             _assemblyService = assemblyService;
             _menuItems =
             [
-                new("Find bio candidates", MenuOptions.FindCandidates, _uiActions.FindCandidates),
+                new("Find bio candidate", MenuOptions.FindCandidate, _uiActions.FindCandidate),
                 new("Show Guardian obituary names", MenuOptions.GuardianObits, _uiActions.ShowGuardianObituaries),
                 new("Show NYTimes obituary names", MenuOptions.NYTimesObits, _uiActions.ShowNYTimesObituaries),
                 new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),

@@ -2,6 +2,6 @@
 {
     public interface INameVersionService
     {
-        List<string> GetNameVersions(string firstnames, string surnames, string suffix);
+        List<string> GetNameVersions(string firstnames, string surname, string suffix);
     }
 }

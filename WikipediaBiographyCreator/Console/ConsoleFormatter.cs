@@ -22,7 +22,7 @@
         public static string GetUserInput(string prompt = "")
         {
             if (!string.IsNullOrWhiteSpace(prompt))
-                WriteInfo(prompt);
+                WriteMenuOption(prompt);
 
             System.Console.ForegroundColor = ConsoleColor.White;
             return System.Console.ReadLine()?.Trim() ?? string.Empty;

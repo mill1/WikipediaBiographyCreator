@@ -19,16 +19,31 @@ namespace WikipediaBiographyCreator.Services
             _wikipediaBiographyService = wikipediaBiographyService;
         }
 
-        public void FindCandidates()
+        public void FindCandidate()
         {
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
 
             ConsoleFormatter.WriteInfo($"Finding candidates for {year}-{monthId}...");
 
-            var bios = _wikipediaBiographyService.FindCandidates(year, monthId);
+            var candidate = _wikipediaBiographyService.FindCandidate(year, monthId);
 
-            ConsoleFormatter.WriteInfo($"{bios.Count} candidates have been found.");
+            if (candidate == null)
+            {
+                ConsoleFormatter.WriteInfo("No candidates have been found :(");
+            }
+            else
+            {
+                if (false)
+                {
+                    // TODO disamb
+                    ConsoleFormatter.WriteSuccess($"Possible candidate found\r\n{candidate}");
+                }
+                else
+                {
+                    ConsoleFormatter.WriteSuccess($"Candidate found\r\n{candidate}");
+                }
+            }
         }
 
         public void ShowGuardianObituaries()

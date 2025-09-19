@@ -59,6 +59,17 @@ namespace YourNamespace.Tests
         }
 
         [TestMethod]
+        public void MaidenName_NoSuffix()
+        {
+            // Act
+            var versions = _service.GetNameVersions("Ruth Bader", "Ginsburg", string.Empty);
+
+            // Assert
+            versions.Should().HaveCount(2);
+            versions.Should().ContainInOrder("Ruth Bader Ginsburg", "Ruth Ginsburg");
+        }
+
+        [TestMethod]
         public void MultipleInitials_OnlyInitials_NoSuffix()
         {
             // Act
@@ -69,37 +80,6 @@ namespace YourNamespace.Tests
             versions.Should().ContainInOrder("J. J. Rambo", "J. Rambo");
         }
 
-        [TestMethod]
-        public void HyphenatedSurname_NoSuffix()
-        {
-            // Act
-            var versions = _service.GetNameVersions("John J.", "Rambo-Matrix", string.Empty);
-
-            // Assert
-            versions.Should().HaveCount(4);
-            versions.Should().ContainInOrder(
-                "John J. Rambo-Matrix",
-                "John Rambo-Matrix",
-                "John J. Rambo",
-                "John Rambo"
-            );
-        }
-
-        [TestMethod]
-        public void MultipleSurnames_NoSuffix()
-        {
-            // Act
-            var versions = _service.GetNameVersions("John J.", "Rambo Matrix", string.Empty);
-
-            // Assert
-            versions.Should().HaveCount(4);
-            versions.Should().ContainInOrder(
-                "John J. Rambo Matrix",
-                "John Rambo Matrix",
-                "John J. Rambo",
-                "John Rambo"
-            );
-        }
 
         [TestMethod]
         public void Suffix_SingleFirstname()
@@ -121,102 +101,6 @@ namespace YourNamespace.Tests
             // Assert
             versions.Should().HaveCount(4);
             versions.Should().ContainInOrder(
-                "John J. Rambo Sr.",
-                "John J. Rambo",
-                "John Rambo Sr.",
-                "John Rambo"
-            );
-        }
-
-        [TestMethod]
-        public void Suffix_WithMultipleSurnames()
-        {
-            // Act
-            var versions = _service.GetNameVersions("John J.", "Rambo Matrix", "Sr.");
-
-            // Assert
-            versions.Should().HaveCount(8);
-            versions.Should().ContainInOrder(
-                "John J. Rambo Matrix Sr.",
-                "John J. Rambo Matrix",
-                "John Rambo Matrix Sr.",
-                "John Rambo Matrix",
-                "John J. Rambo Sr.",
-                "John J. Rambo",
-                "John Rambo Sr.",
-                "John Rambo"
-            );
-        }
-
-        [TestMethod]
-        public void HyphenatedSurname_ShouldGenerateVariants()
-        {
-            // Arrange / Act
-            var versions = _service.GetNameVersions("John J.", "Rambo-Matrix", string.Empty);
-
-            // Assert
-            versions.Should().HaveCount(4);
-
-            versions.Should().ContainInOrder(
-                "John J. Rambo-Matrix",
-                "John Rambo-Matrix",
-                "John J. Rambo",
-                "John Rambo"
-            );
-        }
-
-        [TestMethod]
-        public void MultiSurname_ShouldGenerateVariants()
-        {
-            // Arrange / Act
-            var versions = _service.GetNameVersions("John J.", "Rambo Matrix", string.Empty);
-
-            // Assert
-            versions.Should().HaveCount(4);
-
-            versions.Should().ContainInOrder(
-                "John J. Rambo Matrix",
-                "John Rambo Matrix",
-                "John J. Rambo",
-                "John Rambo"
-            );
-        }
-
-        [TestMethod]
-        public void HyphenatedSurname_WithSuffix_ShouldGenerateVariants()
-        {
-            // Arrange / Act
-            var versions = _service.GetNameVersions("John J.", "Rambo-Matrix", "Sr.");
-
-            // Assert
-            versions.Should().HaveCount(8);
-
-            versions.Should().ContainInOrder(
-                "John J. Rambo-Matrix Sr.",
-                "John J. Rambo-Matrix",
-                "John Rambo-Matrix Sr.",
-                "John Rambo-Matrix",
-                "John J. Rambo Sr.",
-                "John J. Rambo",
-                "John Rambo Sr.",
-                "John Rambo"
-            );
-        }
-
-        [TestMethod]
-        public void MultiSurname_WithSuffix_ShouldGenerateVariants()
-        {
-            // Arrange / Act
-            var versions = _service.GetNameVersions("John J.", "Rambo Matrix", "Sr.");
-
-            // Assert
-            versions.Should().HaveCount(8);
-
-            versions.Should().ContainInOrder(
-                "John J. Rambo Matrix Sr.",
-                "John J. Rambo Matrix",
-                "John Rambo Matrix Sr.",
-                "John Rambo Matrix",
                 "John J. Rambo Sr.",
                 "John J. Rambo",
                 "John Rambo Sr.",
