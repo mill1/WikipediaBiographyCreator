@@ -2,6 +2,7 @@
 {
     public interface IWikipediaApiService
     {
-        string GetWikipediaPageTitle(string nameVersion);
+        string GetPageTitle(string nameVersion, out bool disambiguation);
+        string GetPageContent(string nameVersion);
     }
 }

@@ -30,19 +30,11 @@ namespace WikipediaBiographyCreator.Services
 
             if (candidate == null)
             {
-                ConsoleFormatter.WriteInfo("No candidates have been found :(");
+                ConsoleFormatter.WriteInfo("No evident candidate has been found :(");
             }
             else
             {
-                if (false)
-                {
-                    // TODO disamb
-                    ConsoleFormatter.WriteSuccess($"Possible candidate found\r\n{candidate}");
-                }
-                else
-                {
-                    ConsoleFormatter.WriteSuccess($"Candidate found\r\n{candidate}");
-                }
+                ConsoleFormatter.WriteSuccess($"Candidate found!\r\n{candidate}");
             }
         }
 

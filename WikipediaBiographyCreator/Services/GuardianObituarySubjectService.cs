@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.Guardian;
@@ -20,10 +19,10 @@ namespace WikipediaBiographyCreator.Services
             };
         }
 
-        public (int YearOfBirth, int YearOfDeath) ResolveYoBAndYoD(string obituaryText)
+        public (DateOnly DateOfBirth, DateOnly DateOfDeath) ResolveDoBAndDoD(string obituaryText)
         {
-            int yearOfBirth = -1;
-            int yearOfDeath = -1;
+            DateOnly dateOfBirth = DateOnly.MinValue;
+            DateOnly dateOfDeath = DateOnly.MinValue;
 
             int pos = obituaryText.LastIndexOf(" born ");
             if (pos >= 0)
@@ -46,7 +45,7 @@ namespace WikipediaBiographyCreator.Services
                 */
 
                 if (!snippet.Contains(" died "))
-                    return (yearOfBirth, yearOfDeath);
+                    return (dateOfBirth, dateOfDeath);
 
                 var regex = new Regex(
                     @"(?<dob>(?:[A-Za-z]+\s+\d{1,2},\s*\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}))\s*;\s*died\s+(?<dod>(?:[A-Za-z]+\s+\d{1,2},\s*\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}))",
@@ -56,15 +55,14 @@ namespace WikipediaBiographyCreator.Services
                 if (match.Success)
                 {
                     if (DateTime.TryParse(match.Groups["dob"].Value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dob))
-                        yearOfBirth = dob.Year;
+                        dateOfBirth = DateOnly.FromDateTime(dob);
 
                     if (DateTime.TryParse(match.Groups["dod"].Value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dod))
-                        yearOfDeath = dod.Year;
+                        dateOfDeath = DateOnly.FromDateTime(dod);
                 }
             }
-            ConsoleFormatter.WriteDebug($"Resolved YoB: {yearOfBirth}, YoD: {yearOfDeath}");
 
-            return (yearOfBirth, yearOfDeath);
+            return (dateOfBirth, dateOfDeath);
         }
 
         private string ResolveSubjectName(Result obituary)

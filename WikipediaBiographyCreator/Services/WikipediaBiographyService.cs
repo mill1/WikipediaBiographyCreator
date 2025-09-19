@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
@@ -51,45 +52,136 @@ namespace WikipediaBiographyCreator.Services
                     var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(bestMatch.Value);
                     var exists = false;
 
-                    // checked if any of the versions exist as an article on Wikipedia
+                    // checked if any of the versions exist as an article on Wikipedia. Break if you found it.
                     foreach (var version in nameVersions)
                     {
-                        var wikipediaPageTitle = _wikipediaApiService.GetWikipediaPageTitle(version);
+                        var pageTitle = _wikipediaApiService.GetPageTitle(version, out bool disambiguation);
 
-                        if (wikipediaPageTitle != string.Empty)
+                        if (pageTitle != string.Empty)
                         {
-                            exists = true;
-                            ConsoleFormatter.WriteInfo($"Page exists: {wikipediaPageTitle}");
-                            break;
+                            if (disambiguation)
+                            {
+                                // If we run into a disambiguation page we need to resolve the YoB and YoD. In most
+                                // cases these be found in the body text of the Guardian article.
+                                var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
+                                var (dateOfBirth, dateOfDeath) = _guardianObituarySubjectService.ResolveDoBAndDoD(bodyText);
+
+                                // Get the page content of the disambiguation page
+                                var content = _wikipediaApiService.GetPageContent(pageTitle);
+
+                                if (dateOfBirth == DateOnly.MinValue && dateOfDeath == DateOnly.MinValue)
+                                {
+                                    // No date info. Look for an entry in the disamb. page with the parameter year
+                                    var entry = FindDisambiguationEntry(content, year);
+
+                                    if (entry == null)
+                                    {
+                                        // If not found try again with the previous year in case we're checking January
+                                        if (monthId == 1)
+                                        {
+                                            entry = FindDisambiguationEntry(content, --year);
+
+                                            if (entry != null)
+                                            {
+                                                exists = true;
+                                                ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        exists = true;
+                                        ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+                                        break;
+                                    }
+
+                                    // We couldn't find the name in the disambiguation page; possible candidate!
+                                    exists = true;
+                                    var candidate = CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
+                                    ConsoleFormatter.WriteSuccess($"Possible candidate: {candidate}");
+                                    break;
+                                }
+
+
+                                if (dateOfBirth != DateOnly.MinValue && dateOfDeath != DateOnly.MinValue)
+                                {
+                                    var entry = FindDisambiguationEntry(content, dateOfBirth.Year, dateOfDeath.Year);
+
+                                    if (entry != null)
+                                    {
+                                        exists = true;
+                                        ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+                                        break;
+                                    }
+                                }
+
+
+
+                                exists = true;
+
+                                // If January also check to year before
+
+                                //if (yearOfDeath == -1)
+                                //    yearOfDeath = year; // Use the obituary year as YoD if we cannot resolve it from the text  
+                            }
+                            else
+                            {
+                                exists = true;
+                                ConsoleFormatter.WriteInfo($"Page exists: {pageTitle}");
+                                break;
+                            }
                         }
                     }
 
                     if (!exists)
                     {
                         // We are in business!
-                        return new Candidate
-                        {
-                            Name = bestMatch.Value,
-                            WebUrlGuardian = guardianObit.WebUrl,
-                            WebUrlNYTimes = nyTimesObits.Where(o => o.Subject.NormalizedName == bestMatch.Value).Select(o => o.WebUrl).First()
-                        };
+                        return CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
                     }
-
-
-                    // If we run into a disambiguation pages we need to resolve the YoB and YoD. In most
-                    // cases these be found in the body text of the Guardian article.
-
-                    //var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
-                    //var (yearOfBirth, yearOfDeath) = _guardianObituarySubjectService.ResolveYoBAndYoD(bodyText);
-
-                    //if (yearOfDeath == -1)
-                    //    yearOfDeath = year; // Use the obituary year as YoD if we cannot resolve it from the text                        
-
                 }
             }
 
-            // No candidates found :(
+            // No candidate found :(
             return null;
+        }
+
+        public static string? FindDisambiguationEntry(string wikiText, int birthYear, int deathYear)
+        {
+            // Example regex: [[Page title]] ... 1932–2001
+            string pattern = $@"\[\[([^\]]+)\]\][^\n]*\b{birthYear}–{deathYear}\b";
+
+            var match = Regex.Match(wikiText, pattern);
+            if (match.Success)
+            {
+                return match.Groups[1].Value; // The page name inside [[...]]
+            }
+
+            return null;
+        }
+
+        public static string? FindDisambiguationEntry(string wikiText, int deathYear)
+        {
+            // Match: [[Page title]] ... –2001
+            string pattern = $@"\[\[([^\]]+)\]\][^\n]*–{deathYear}\b";
+
+            var match = Regex.Match(wikiText, pattern);
+            if (match.Success)
+            {
+                return match.Groups[1].Value; // The page name inside [[...]]
+            }
+
+            return null;
+        }
+
+        private static Candidate CreateCandidate(Obituary guardianObit, List<Obituary> nyTimesObits, string subjectName)
+        {
+            return new Candidate
+            {
+                Name = subjectName,
+                WebUrlGuardian = guardianObit.WebUrl,
+                WebUrlNYTimes = nyTimesObits.Where(o => o.Subject.NormalizedName == subjectName).Select(o => o.WebUrl).First()
+            };
         }
 
         public Candidate CreateBiography()

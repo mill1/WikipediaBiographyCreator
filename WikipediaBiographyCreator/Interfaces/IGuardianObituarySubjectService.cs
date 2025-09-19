@@ -4,6 +4,6 @@ namespace WikipediaBiographyCreator.Interfaces
 {
     public interface IGuardianObituarySubjectService : IObituarySubjectService<Result>
     {
-        (int YearOfBirth, int YearOfDeath) ResolveYoBAndYoD(string obituaryText);
+        (DateOnly DateOfBirth, DateOnly DateOfDeath) ResolveDoBAndDoD(string obituaryText);
     }
 }

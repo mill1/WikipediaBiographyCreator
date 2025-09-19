@@ -25,9 +25,10 @@ namespace WikipediaBiographyCreator.Services
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public string GetWikipediaPageTitle(string nameVersion)
+        public string GetPageTitle(string nameVersion, out bool disambiguation)
         {
             // Call Wikipedia API to check if an article with a given name exists
+            disambiguation = false;
 
             JObject obj = GetResponse(nameVersion);
 
@@ -44,17 +45,20 @@ namespace WikipediaBiographyCreator.Services
                     return string.Empty;
                 }
 
-                // In case of a proper id we have props
+                // In case of a proper id we always have props
                 var props = pageObj.Value["pageprops"];
 
                 if (props != null && props["disambiguation"] != null)
                 {
-                    // TODO disamb
+                    // Names versions are checked from most specific to more generic.
+                    // If we end up here we can be sure that no 'normal' page will be found in subsequent versions,
+                    // also because of the redirects involved,
+                    disambiguation = true;
                     return nameVersion;
                 }
                 else
                 {
-                    // Redirected?
+                    // Normal article found. Was it redirected?
                     var redirects = obj["query"]?["redirects"];
 
                     if (redirects == null)
@@ -63,16 +67,48 @@ namespace WikipediaBiographyCreator.Services
                     }
                     else
                     {
-                        if (!redirects.HasValues)
-                            throw new AppException($"{nameVersion}: redirect without values; investigate");
-                        string toValue = redirects[0]?["to"]?.ToString();
-                        return $"{toValue} [redirected]";
+                        return ResolveRedirectedPageTitle(nameVersion, redirects);
                     }
                 }
             }
 
-
             return string.Empty;
+        }
+
+        public string GetPageContent(string pageName)
+        {
+            string url = $"w/api.php?action=query&titles={Uri.EscapeDataString(pageName)}&prop=pageprops&redirects=1&format=json";
+
+            url = $"w/api.php?action=query&prop=revisions&rvprop=content&rvslots=*&titles={Uri.EscapeDataString(pageName)}&format=json";
+
+            string json = _httpClient.GetStringAsync(url).Result;
+            var obj = JObject.Parse(json);
+
+            var pages = obj["query"]?["pages"];
+
+            foreach (var page in pages.Children<JProperty>())
+            {
+                var content = page.Value["revisions"]?[0]?["slots"]?["main"]?["*"]?.ToString();
+                if (content == null)
+                {
+                    throw new AppException("No content found in slot *");
+                }
+                {
+                    return content;
+                }
+            }
+
+            throw new AppException("No content found in pages");
+        }
+
+        private static string ResolveRedirectedPageTitle(string nameVersion, JToken redirects)
+        {
+            if (!redirects.HasValues)
+                throw new AppException($"{nameVersion}: redirect without values; investigate");
+
+            string toValue = redirects[0]["to"].ToString();
+
+            return $"{toValue} [redirected]";
         }
 
         private JObject GetResponse(string nameVersion)

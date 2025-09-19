@@ -21,7 +21,7 @@ namespace WikipediaBiographyCreator.Services
             var firstnameParts = firstnames.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             // Two firstname variants:
-            var allFirstnames = string.Join(" ", firstnameParts);          // all parts
+            var allFirstnames = string.Join(" ", firstnameParts); // all parts
             var onlyFirst = firstnameParts.Length > 0 ? firstnameParts[0] : string.Empty; // first only
 
             // Helper to add versions with and without suffix

@@ -124,8 +124,6 @@ namespace WikipediaBiographyCreator.Services
         {
             string uri = $"{apiUrl}?show-fields=bodyText&api-key={apiKey}";
 
-            ConsoleFormatter.WriteInfo($"Retrieving Guardian obituary text for {subjectName}...");
-
             var response = _httpClient.GetAsync(uri).Result;
 
             if (response.IsSuccessStatusCode)
