@@ -12,7 +12,7 @@ namespace WikipediaBiographyCreator.Extensions
             return new String(paddingChar, numberOfPrecedingPaddingChars) + str + new String(paddingChar, numberOfTrailingPaddingChars);
         }
 
-        public static string Capitalize(this string str)
+        public static string CapitalizeName(this string str)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return string.Empty;
@@ -22,9 +22,8 @@ namespace WikipediaBiographyCreator.Extensions
 
             string suffix = string.Empty;
 
-            // Regex for Roman numerals up to 3999 (you can simplify if needed)
-            var romanRegex = new Regex("^(M{0,4}(CM|CD|D?C{0,3})" +
-                                       "(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$",
+            // Roman numeral check (kept from earlier)
+            var romanRegex = new Regex("^(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$",
                                        RegexOptions.IgnoreCase);
 
             if (romanRegex.IsMatch(words.Last()))
@@ -37,14 +36,33 @@ namespace WikipediaBiographyCreator.Extensions
             {
                 var subWords = word.Split('-', StringSplitOptions.RemoveEmptyEntries);
 
-                var capitalizedSubWords = subWords.Select(sw =>
-                    char.ToUpper(sw[0]) + sw.Substring(1).ToLower()
-                );
+                var capitalizedSubWords = subWords.Select(CapitalizeWordWithMcMac);
 
                 return string.Join("-", capitalizedSubWords);
             });
 
             return string.Join(' ', capitalizedWords) + suffix;
+        }
+
+        private static string CapitalizeWordWithMcMac(string word)
+        {
+            if (string.IsNullOrEmpty(word))
+                return word;
+
+            // Basic capitalization
+            string result = char.ToUpper(word[0]) + word.Substring(1).ToLower();
+
+            // Special handling for McX... and MacX...
+            if (result.StartsWith("Mc") && result.Length > 2)
+            {
+                result = "Mc" + char.ToUpper(result[2]) + result.Substring(3);
+            }
+            else if (result.StartsWith("Mac") && result.Length > 3)
+            {
+                result = "Mac" + char.ToUpper(result[3]) + result.Substring(4);
+            }
+
+            return result;
         }
     }
 }

@@ -30,13 +30,13 @@ namespace WikipediaBiographyCreator.Services
             int i = subjectName.IndexOf(",");
 
             if (i == -1) // Just one name
-                return new List<string> { subjectName.Capitalize() };
+                return new List<string> { subjectName.CapitalizeName() };
 
             // "BAUMFELD," in request March 1988
             if (!subjectName.Contains(' '))
-                return new List<string> { subjectName.Replace(",", "").Capitalize() };
+                return new List<string> { subjectName.Replace(",", "").CapitalizeName() };
 
-            string surname = subjectName.Substring(0, i).Capitalize();
+            string surname = subjectName.Substring(0, i).CapitalizeName();
 
             string firstnames = subjectName.Substring(i + 1).Trim();
             firstnames = AdjustFirstNames(firstnames, out string suffix);
@@ -146,7 +146,7 @@ namespace WikipediaBiographyCreator.Services
                 suffix = string.Empty;
             }
 
-            var normalized = string.Join(" ", parts).Capitalize();
+            var normalized = string.Join(" ", parts).CapitalizeName();
             return normalized;
         }
     }

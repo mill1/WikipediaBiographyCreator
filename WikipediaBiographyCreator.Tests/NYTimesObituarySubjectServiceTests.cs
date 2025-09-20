@@ -55,6 +55,19 @@ namespace WikipediaBiographyCreator.Tests
         }
 
         [TestMethod]
+        public void Capitalize_SurnameMac()
+        {
+            // Act
+            var versions = _service.GetNameVersions("MACDONALD, JOHN");
+
+            // Assert
+            versions.Should().HaveCount(1);
+            versions.Should().ContainInOrder(
+                "John MacDonald"
+            );
+        }
+
+        [TestMethod]
         public void CreateVersions_WithInitials()
         {
             // Act

@@ -51,7 +51,7 @@ namespace WikipediaBiographyCreator.Services
             var bestMatch = FuzzySharp.Process.ExtractOne(ctx.Guardian.Subject.NormalizedName, nyTimesObitNames);
             string matchedName = bestMatch.Value;
 
-            if (bestMatch.Score < 85 && bestMatch.Score >= 80)
+            if (bestMatch.Score < 85 && bestMatch.Score >= 75)
                 ConsoleFormatter.WriteWarning($"Score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually");
 
             /*
