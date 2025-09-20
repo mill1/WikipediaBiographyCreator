@@ -15,6 +15,33 @@ namespace WikipediaBiographyCreator.Tests
         }
 
         [TestMethod]
+        public void CreateVersions_NoComma()
+        {
+            // Act
+            var versions = _service.GetNameVersions("OTUMFUO OPOKU WARE II");
+
+            // Assert
+            versions.Should().HaveCount(1);
+            versions.Should().ContainInOrder(
+                "Otumfuo Opoku Ware II"
+            );
+        }
+
+        [TestMethod]
+        public void CreateVersions_HighRomanNumbers()
+        {
+            // Act
+            var versions = _service.GetNameVersions("LOUIS XIV");
+
+            // Assert
+            versions.Should().HaveCount(1);
+            versions.Should().ContainInOrder(
+                "Louis XIV"
+            );
+        }
+
+
+        [TestMethod]
         public void Capitalize_Firstname()
         {
             // Act
@@ -31,7 +58,6 @@ namespace WikipediaBiographyCreator.Tests
         public void CreateVersions_WithInitials()
         {
             // Act
-            // TODO RAMBO, JOHN J
             var versions = _service.GetNameVersions("Warwick, William E");
 
             // Assert

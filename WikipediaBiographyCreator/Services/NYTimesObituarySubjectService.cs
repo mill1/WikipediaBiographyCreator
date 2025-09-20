@@ -113,8 +113,7 @@ namespace WikipediaBiographyCreator.Services
                 ["VI"] = "VI",
                 ["VII"] = "VII",
                 ["VIII"] = "VIII",
-                ["IX"] = "IX",
-                ["X"] = "X"
+                ["IX"] = "IX"
             };
 
             // Ordinal/number-based mappings

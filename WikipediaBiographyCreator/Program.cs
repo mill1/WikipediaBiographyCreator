@@ -42,6 +42,7 @@ namespace WikipediaBiographyCreator
             .AddScoped<IWikipediaApiService, WikipediaApiService>()
             .AddScoped<IWikipediaBiographyService, WikipediaBiographyService>()
             .AddScoped<INameVersionService, NameVersionService>()
+            .AddScoped<IDisambiguationResolver, DisambiguationResolver>()
             .AddScoped<IGuardianApiService, GuardianApiService>()
             .AddScoped<IGuardianObituarySubjectService, GuardianObituarySubjectService>()
             .AddScoped<INYTimesApiService, NYTimesApiService>()

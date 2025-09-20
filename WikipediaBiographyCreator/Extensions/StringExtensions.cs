@@ -1,4 +1,6 @@
-﻿namespace WikipediaBiographyCreator.Extensions
+﻿using System.Text.RegularExpressions;
+
+namespace WikipediaBiographyCreator.Extensions
 {
     public static class StringExtensions
     {
@@ -16,26 +18,33 @@
                 return string.Empty;
 
             str = str.Trim();
-
-            // Split words on spaces
             var words = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            string suffix = string.Empty;
+
+            // Regex for Roman numerals up to 3999 (you can simplify if needed)
+            var romanRegex = new Regex("^(M{0,4}(CM|CD|D?C{0,3})" +
+                                       "(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$",
+                                       RegexOptions.IgnoreCase);
+
+            if (romanRegex.IsMatch(words.Last()))
+            {
+                suffix = " " + words.Last(); // preserve as-is
+                words = words.Take(words.Length - 1).ToArray();
+            }
 
             var capitalizedWords = words.Select(word =>
             {
-                // Split subwords on hyphens
                 var subWords = word.Split('-', StringSplitOptions.RemoveEmptyEntries);
 
-                // Capitalize each subword
                 var capitalizedSubWords = subWords.Select(sw =>
                     char.ToUpper(sw[0]) + sw.Substring(1).ToLower()
                 );
 
-                // Join subwords back with hyphen
                 return string.Join("-", capitalizedSubWords);
             });
 
-            // Join words back with space
-            return string.Join(' ', capitalizedWords);
+            return string.Join(' ', capitalizedWords) + suffix;
         }
     }
 }
