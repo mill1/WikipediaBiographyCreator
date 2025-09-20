@@ -35,107 +35,97 @@ namespace WikipediaBiographyCreator.Services
         {
             var guardianObits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
             var nyTimesObits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
-            var nyTimesObitNames = nyTimesObits.Select(o => o.Subject.NormalizedName).ToList();
 
-            foreach (Obituary guardianObit in guardianObits)
+            foreach (var guardianObit in guardianObits)
             {
-                // Find the best match in obitNamesNYTimes for each name in obitNamesGuardian
-                var bestMatch = FuzzySharp.Process.ExtractOne(guardianObit.Subject.NormalizedName, nyTimesObitNames);
-                int scoreThreshold = GetScoreThresholdSetting();
-
-                if (bestMatch.Score >= scoreThreshold)
-                {
-                    //ConsoleFormatter.WriteDebug($"{guardianObit} -> {bestMatch.Value} (score: {bestMatch.Score})");
-                    //ConsoleFormatter.WriteDebug(guardianObit.WebUrl);
-
-                    // Determine the name versions for which we need to check Wikipedia
-                    var nyTimesSubject = nyTimesObits.Where(o => o.Subject.NormalizedName == bestMatch.Value).Select(o => o.Subject.Name).First();
-
-                    var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(nyTimesSubject);
-                    var exists = false;
-
-                    // checked if any of the versions exist as an article on Wikipedia. Break if you found it.
-                    foreach (var version in nameVersions)
-                    {
-                        ConsoleFormatter.WriteDebug($"Checking version {version}");
-
-                        var pageTitle = _wikipediaApiService.GetPageTitle(version, out bool disambiguation);
-
-                        if (pageTitle != string.Empty)
-                        {
-                            if (disambiguation)
-                            {
-                                // If we run into a disambiguation page we need to resolve the YoB and YoD. In most
-                                // cases these be found in the body text of the Guardian article.
-                                var bodyText = _guardianApiService.GetObituaryText(guardianObit.ApiUrl, guardianObit.Subject.Name);
-                                var (dateOfBirth, dateOfDeath) = _guardianObituarySubjectService.ResolveDoBAndDoD(bodyText);
-
-                                // Get the page content of the disambiguation page
-                                var content = _wikipediaApiService.GetPageContent(pageTitle);
-
-                                if (dateOfBirth != DateOnly.MinValue && dateOfDeath != DateOnly.MinValue)
-                                {
-                                    var entry = FindDisambiguationEntry(content, dateOfBirth.Year, dateOfDeath.Year);
-
-                                    if (entry != null)
-                                    {
-                                        exists = true;
-                                        ConsoleFormatter.WriteInfo($"Page exists: {entry}");
-                                        break;
-                                    }
-                                }
-
-                                if (dateOfBirth == DateOnly.MinValue && dateOfDeath == DateOnly.MinValue)
-                                {
-                                    // No date info. Look for an entry in the disamb. page with the parameter year
-                                    var entry = FindDisambiguationEntry(content, year);
-
-                                    if (entry == null)
-                                    {
-                                        // If not found try again with the previous year in case we're checking January
-                                        if (monthId == 1)
-                                        {
-                                            entry = FindDisambiguationEntry(content, --year);
-
-                                            if (entry != null)
-                                            {
-                                                exists = true;
-                                                ConsoleFormatter.WriteInfo($"Page exists: {entry}");
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        exists = true;
-                                        ConsoleFormatter.WriteInfo($"Page exists: {entry}");
-                                        break;
-                                    }
-                                }
-
-                                // We couldn't find the name in the disambiguation page; possible candidate!
-                                exists = true;
-                                var candidate = CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
-                                ConsoleFormatter.WriteSuccess($"Possible candidate: {candidate}");
-                                break;
-                            }
-                            else
-                            {
-                                exists = true;
-                                ConsoleFormatter.WriteInfo($"Page exists: {pageTitle}");
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!exists)
-                    {
-                        // We could be in business!
-                        var candidate = CreateCandidate(guardianObit, nyTimesObits, bestMatch.Value);
-                        ConsoleFormatter.WriteSuccess($"Strong candidate: {candidate}");
-                    }
-                }
+                var context = new ObituaryContext(guardianObit, nyTimesObits, year, monthId);
+                ProcessGuardianObituary(context);
             }
+        }
+
+        private void ProcessGuardianObituary(ObituaryContext ctx)
+        {
+            var nyTimesObitNames = ctx.NyTimesObits.Select(o => o.Subject.NormalizedName).ToList();
+            var bestMatch = FuzzySharp.Process.ExtractOne(ctx.Guardian.Subject.NormalizedName, nyTimesObitNames);
+
+            if (bestMatch.Score < GetScoreThresholdSetting()) return;
+
+            ctx.MatchValue = bestMatch.Value;
+            ctx.NyTimesSubject = ctx.NyTimesObits
+                .First(o => o.Subject.NormalizedName == ctx.MatchValue).Subject.Name;
+
+            var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(ctx.NyTimesSubject);
+            var exists = TryResolveWikipediaExistence(ctx, nameVersions);
+
+            if (!exists) CreateCandidateResult(ctx);
+        }
+
+        private bool TryResolveWikipediaExistence(ObituaryContext ctx, IEnumerable<string> nameVersions)
+        {
+            foreach (var version in nameVersions)
+            {
+                ConsoleFormatter.WriteDebug($"Checking version {version}");
+                var pageTitle = _wikipediaApiService.GetPageTitle(version, out bool disamb);
+
+                if (string.IsNullOrEmpty(pageTitle)) continue;
+
+                if (!disamb) return LogPageExists(pageTitle);
+
+                if (TryHandleDisambiguation(ctx, pageTitle)) return true;
+
+                var candidate = CreateCandidate(ctx.Guardian, ctx.NyTimesObits, ctx.MatchValue);
+                ConsoleFormatter.WriteSuccess($"Possible candidate: {candidate}");
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryHandleDisambiguation(ObituaryContext ctx, string pageTitle)
+        {
+            var body = _guardianApiService.GetObituaryText(ctx.Guardian.ApiUrl, ctx.Guardian.Subject.Name);
+            var (dob, dod) = _guardianObituarySubjectService.ResolveDoBAndDoD(body);
+            var content = _wikipediaApiService.GetPageContent(pageTitle);
+
+            if (dob != DateOnly.MinValue && dod != DateOnly.MinValue)
+                return TryMatchDisambEntry(content, dob.Year, dod.Year);
+
+            return TryMatchDisambByYear(content, ctx.Year, ctx.MonthId);
+        }
+
+        private bool TryMatchDisambEntry(string content, int yob, int yod)
+        {
+            var entry = FindDisambiguationEntry(content, yob, yod);
+
+            if (entry == null) return false;
+
+            ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+            return true;
+        }
+
+        private bool TryMatchDisambByYear(string content, int year, int monthId)
+        {
+            var entry = FindDisambiguationEntry(content, year);
+            if (entry == null && monthId == 1)
+                entry = FindDisambiguationEntry(content, year - 1);
+
+            if (entry == null) return false;
+
+            ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+            return true;
+        }
+
+        private bool LogPageExists(string pageTitle)
+        {
+            ConsoleFormatter.WriteInfo($"Page exists: {pageTitle}");
+            return true;
+        }
+
+        private void CreateCandidateResult(ObituaryContext ctx)
+        {
+            var candidate = CreateCandidate(ctx.Guardian, ctx.NyTimesObits, ctx.MatchValue);
+            var msg = ctx.NyTimesSubject.Contains("Name cannot be resolved.")
+                ? "Weak candidate" : "Strong candidate";
+            ConsoleFormatter.WriteSuccess($"{msg}: {candidate}");
         }
 
         public static string? FindDisambiguationEntry(string wikiText, int birthYear, int deathYear)
@@ -193,6 +183,24 @@ namespace WikipediaBiographyCreator.Services
             }
 
             return scoreThreshold;
+        }
+
+        private class ObituaryContext
+        {
+            public Obituary Guardian { get; }
+            public List<Obituary> NyTimesObits { get; }
+            public int Year { get; }
+            public int MonthId { get; }
+            public string MatchValue { get; set; } = string.Empty;
+            public string NyTimesSubject { get; set; } = string.Empty;
+
+            public ObituaryContext(Obituary guardian, List<Obituary> nyTimesObits, int year, int monthId)
+            {
+                Guardian = guardian;
+                NyTimesObits = nyTimesObits;
+                Year = year;
+                MonthId = monthId;
+            }
         }
     }
 }

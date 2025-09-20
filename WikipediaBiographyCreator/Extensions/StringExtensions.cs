@@ -17,14 +17,24 @@
 
             str = str.Trim();
 
-            // Split words, ignore multiple spaces
+            // Split words on spaces
             var words = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            // Capitalize each word
-            var capitalizedWords = words.Select(w =>
-                char.ToUpper(w[0]) + w.Substring(1).ToLower()
-            );
+            var capitalizedWords = words.Select(word =>
+            {
+                // Split subwords on hyphens
+                var subWords = word.Split('-', StringSplitOptions.RemoveEmptyEntries);
 
+                // Capitalize each subword
+                var capitalizedSubWords = subWords.Select(sw =>
+                    char.ToUpper(sw[0]) + sw.Substring(1).ToLower()
+                );
+
+                // Join subwords back with hyphen
+                return string.Join("-", capitalizedSubWords);
+            });
+
+            // Join words back with space
             return string.Join(' ', capitalizedWords);
         }
     }
