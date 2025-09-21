@@ -1,4 +1,5 @@
-﻿using WikipediaBiographyCreator.Console;
+﻿using System.Text.RegularExpressions;
+using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using static WikipediaBiographyCreator.Services.WikipediaBiographyService;
 
@@ -26,13 +27,23 @@ namespace WikipediaBiographyCreator.Services
             var (dob, dod) = _guardianObituarySubjectService.ResolveDoBAndDoD(body);
             var content = _wikipediaApiService.GetPageContent(pageTitle);
 
-            if (dob != DateOnly.MinValue && dod != DateOnly.MinValue)
-                return TryMatchDisambEntry(content, dob.Year, dod.Year);
+            // Check redirect to disambiguation page. 
+            if (content.Contains("#REDIRECT"))
+            {
+                //Angus MacDonald: Last sentence in body differs:
+                // Angus MacDonald, piper, born October 20, 1938; died, June 25, 1999
+                // Get the disambiguation page 
+                var redirectionTarget = GetRedirectTarget(content);
+                content = _wikipediaApiService.GetPageContent(redirectionTarget);
+            }
 
-            return TryMatchDisambByYear(content, ctx.Year, ctx.MonthId);
+            if (dob != DateOnly.MinValue && dod != DateOnly.MinValue)
+                return TryMatchDisambiguationEntry(content, dob.Year, dod.Year);
+
+            return TryMatchDisambiguationByYear(content, ctx.Year, ctx.MonthId);
         }
 
-        private bool TryMatchDisambEntry(string content, int yob, int yod)
+        private bool TryMatchDisambiguationEntry(string content, int yob, int yod)
         {
             var entry = FindDisambiguationEntry(content, yob, yod);
 
@@ -43,7 +54,7 @@ namespace WikipediaBiographyCreator.Services
             return true;
         }
 
-        private bool TryMatchDisambByYear(string content, int year, int monthId)
+        private bool TryMatchDisambiguationByYear(string content, int year, int monthId)
         {
             var entry = FindDisambiguationEntry(content, year);
 
@@ -56,6 +67,15 @@ namespace WikipediaBiographyCreator.Services
             ConsoleFormatter.WriteInfo($"Page exists: {entry}");
             return true;
         }
-    }
 
+        private string GetRedirectTarget(string text)
+        {
+            var match = Regex.Match(text, @"#REDIRECT\s+\[\[(.*?)\]\]", RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            throw new Exception("Redirection target could not be resolved.");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.Guardian;
@@ -32,15 +33,18 @@ namespace WikipediaBiographyCreator.Services
                 int length = Math.Min(60, obituaryText.Length - start);
                 string snippet = obituaryText.Substring(start, length);
 
+                if (snippet.Contains(" died,"))
+                    ConsoleFormatter.WriteDebug($"Snippet not well formed (' died,'): {snippet}");
+
                 /*
-                    Many Guardian obituary texts end stating the DoB and DoD in this exact format:
+                    Many Guardian obituary texts end stating the DoB and DoD in these exact format:
                     [Name], [profession], born [DoB]; died [DoD]  e.g.
                     Giorgio Armani, fashion designer, born 11 July 1934; died 4 September 2025
 
                     Examples of snippets found:
-                    Start date data:  September 13, 1922; died January 21, 1999...
+                    Start date data:  September 13, 1922; died January 21, 1999
                     Start date data:  on an Oklahoma farm. His mother was a Cree, his father a Che...
-                    Start date data:  November 1, 1897; died January 11, 1999...
+                    Start date data:  January 19 1919; died November 18 1999
                     Start date data:  October 1, 1917; died January 12, 1999 Godfrey Hodgson...
                 */
 
@@ -48,7 +52,7 @@ namespace WikipediaBiographyCreator.Services
                     return (dateOfBirth, dateOfDeath);
 
                 var regex = new Regex(
-                    @"(?<dob>(?:[A-Za-z]+\s+\d{1,2},\s*\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}))\s*;\s*died\s+(?<dod>(?:[A-Za-z]+\s+\d{1,2},\s*\d{4}|\d{1,2}\s+[A-Za-z]+\s+\d{4}))",
+                    @"(?<dob>(?:[A-Za-z]+\s+\d{1,2},?\s+\d{4}))\s*;\s*died\s+(?<dod>(?:[A-Za-z]+\s+\d{1,2},?\s+\d{4}))",
                     RegexOptions.IgnoreCase);
 
                 var match = regex.Match(snippet);

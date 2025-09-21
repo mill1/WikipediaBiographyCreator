@@ -52,7 +52,7 @@ namespace WikipediaBiographyCreator.Services
             string matchedName = bestMatch.Value;
 
             if (bestMatch.Score < 85 && bestMatch.Score >= 75)
-                ConsoleFormatter.WriteWarning($"Score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually");
+                ConsoleFormatter.WriteWarning($"Score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually.");
 
             /*
              * 4:
@@ -109,21 +109,17 @@ namespace WikipediaBiographyCreator.Services
         public static string? FindDisambiguationEntry(string wikiText, int birthYear, int deathYear)
         {
             // Example regex: [[Page title]] ... 1932–2001
-            string pattern = $@"\[\[([^\]]+)\]\][^\n]*\b{birthYear}–{deathYear}\b";
+            string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}[-–]{deathYear}\)";
+            //string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}-{deathYear}\)";
 
             var match = Regex.Match(wikiText, pattern);
-            if (match.Success)
-            {
-                return match.Groups[1].Value; // The page name inside [[...]]
-            }
-
-            return null;
+            return match.Success ? match.Groups["title"].Value : null;
         }
 
         public static string? FindDisambiguationEntry(string wikiText, int deathYear)
         {
             // Match: [[Page title]] ... –2001
-            string pattern = $@"\[\[([^\]]+)\]\][^\n]*–{deathYear}\b";
+            var pattern = $@"\[\[(.*?)\]\]\s*\(\d+[-–]{deathYear}\)";
 
             var match = Regex.Match(wikiText, pattern);
             if (match.Success)
@@ -169,7 +165,6 @@ namespace WikipediaBiographyCreator.Services
             public List<Obituary> NyTimesObits { get; }
             public int Year { get; }
             public int MonthId { get; }
-            //   public string MatchValue { get; set; } = string.Empty;
             public string NyTimesSubject { get; set; } = string.Empty;
 
             public ObituaryContext(Obituary guardian, List<Obituary> nyTimesObits, int year, int monthId)

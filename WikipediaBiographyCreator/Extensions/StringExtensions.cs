@@ -41,7 +41,12 @@ namespace WikipediaBiographyCreator.Extensions
                 return string.Join("-", capitalizedSubWords);
             });
 
-            return string.Join(' ', capitalizedWords) + suffix;
+            var name = string.Join(' ', capitalizedWords) + suffix;
+
+            // Final tweaks
+            name = name.Replace(" De ", " de ");
+
+            return name;
         }
 
         private static string CapitalizeWordWithMcMac(string word)
@@ -52,14 +57,20 @@ namespace WikipediaBiographyCreator.Extensions
             // Basic capitalization
             string result = char.ToUpper(word[0]) + word.Substring(1).ToLower();
 
-            // Special handling for McX... and MacX...
+            // Special handling for McX...
             if (result.StartsWith("Mc") && result.Length > 2)
             {
                 result = "Mc" + char.ToUpper(result[2]) + result.Substring(3);
             }
+            // Special handling for MacX...
             else if (result.StartsWith("Mac") && result.Length > 3)
             {
                 result = "Mac" + char.ToUpper(result[3]) + result.Substring(4);
+            }
+            // Special handling for O'X...
+            else if (result.StartsWith("O'") && result.Length > 2)
+            {
+                result = "O'" + char.ToUpper(result[2]) + result.Substring(3);
             }
 
             return result;
