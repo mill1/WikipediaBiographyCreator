@@ -31,15 +31,15 @@ namespace WikipediaBiographyCreator.Services
 
         public void ShowGuardianObituaries()
         {
-            ShowObituaries(_guardianApiService, "Guardian");
+            ShowObituaryNames(_guardianApiService, "Guardian");
         }
 
         public void ShowNYTimesObituaries()
         {
-            ShowObituaries(_nyTimesApiService, "NYTimes");
+            ShowObituaryNames(_nyTimesApiService, "NYTimes");
         }
 
-        private void ShowObituaries(IApiService apiService, string sourceName)
+        private void ShowObituaryNames(IApiService apiService, string sourceName)
         {
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
@@ -50,7 +50,7 @@ namespace WikipediaBiographyCreator.Services
 
             foreach (var obit in obits)
             {
-                ConsoleFormatter.WriteInfo($"{obit.Subject.NormalizedName}"); // ({obit.Subject.Name})");
+                ConsoleFormatter.WriteInfo($"{obit.Subject.Name}"); // ({obit.Subject.Name})");
             }
         }
 

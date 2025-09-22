@@ -96,12 +96,17 @@ namespace WikipediaBiographyCreator.Services
             if (pos >= 0)
                 subjectName = subjectName.Substring(pos + 1).Trim();
 
+            // One-offs
+            subjectName = subjectName.Replace("Obituari" +
+                "es; ", string.Empty);
+            subjectName = subjectName.Replace(" (letter); ", string.Empty);
+
             return SanitizeSubjectName(subjectName);
         }
 
         private static string GetNormalizedName(string subjectName)
         {
-            // Replace all single-character words (A-Z) with "X." if not at the end of the string.
+            // Add a point behind any single uppercase letters (A-Z) except when it is situated at the end.
             var GetNormalizedName = Regex.Replace(
                 subjectName,
                 @"\b([A-Z])\b(?!$)",

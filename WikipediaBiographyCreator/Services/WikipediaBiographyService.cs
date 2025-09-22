@@ -55,9 +55,11 @@ namespace WikipediaBiographyCreator.Services
                 ConsoleFormatter.WriteWarning($"Score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually.");
 
             /*
-             * 4:
                 Score = 80: 'Michael Aris' - 'Michael Caine' (NYTimes)
                 Score = 80: 'Nana Opoku Ware II' - 'Otumfuo Opoku Ware Ii' (NYTimes)
+            Score = 81: 'Obituaries; Gherman Titov' - 'Gherman S. Titov' (NYTimes)
+                Score = 82: 'WD Hamilton' - 'William Donald Hamilton' (NYTimes)
+                Score = 83: 'Barbosa Lima' - 'Alexandre Barboas Lima' (NYTimes)
                 Score = 86: 'Abdul Aziz Ibn Baz' - 'Abdelaziz Bin Baz' (NYTimes)
              */
 
@@ -110,7 +112,6 @@ namespace WikipediaBiographyCreator.Services
         {
             // Example regex: [[Page title]] ... 1932–2001
             string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}[-–]{deathYear}\)";
-            //string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}-{deathYear}\)";
 
             var match = Regex.Match(wikiText, pattern);
             return match.Success ? match.Groups["title"].Value : null;
