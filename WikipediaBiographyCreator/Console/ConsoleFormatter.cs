@@ -35,7 +35,7 @@
 
         #region Error message builders
         public static string UnexpectedError(Exception ex) =>
-           $"Unexpected error: {ex.Message}";
+           $"Unexpected error:\r\n{ex}";
 
         public static string InvalidOption(string option) =>
             $"Invalid option: {option}";

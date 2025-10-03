@@ -24,8 +24,6 @@ namespace WikipediaBiographyCreator.Services
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
 
-            ConsoleFormatter.WriteInfo($"Finding candidates for {year}-{monthId}...");
-
             _wikipediaBiographyService.FindCandidates(year, monthId);
         }
 

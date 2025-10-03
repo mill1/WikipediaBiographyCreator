@@ -55,7 +55,10 @@ namespace WikipediaBiographyCreator.Services
                 int pos = doc.headline.main.IndexOf(',');
 
                 if (pos < 0)
-                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, 40)}"; // F.i. Skip Spence
+                {
+                    int maxLength = Math.Min(40, doc.headline.main.Length);
+                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, maxLength)}"; // F.i. Skip Spence
+                }
 
                 return doc.headline.main.Substring(0, pos);
             }

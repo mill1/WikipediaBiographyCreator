@@ -33,59 +33,68 @@ namespace WikipediaBiographyCreator.Services
 
         public void FindCandidates(int year, int monthId)
         {
+            ConsoleFormatter.WriteInfo($"Finding candidates for {year}/{monthId}...");
+
             var guardianObits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
             var nyTimesObits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
 
+            ConsoleFormatter.WriteInfo($"Resolved {guardianObits.Count} Guardian and {nyTimesObits.Count} NYTimes obituaries.");
+            ConsoleFormatter.WriteInfo($"Proceeding to check matching names for existence on Wikipedia...");
+
             int threshold = GetScoreThresholdSetting();
+            int nrOfMatches = 0;
 
             foreach (var guardianObit in guardianObits)
             {
                 var ctx = new ObituaryContext(guardianObit, nyTimesObits, year, monthId);
-                ProcessGuardianObituary(ctx, threshold);
+                nrOfMatches += ProcessGuardianObituary(ctx, threshold);
             }
+
+            ConsoleFormatter.WriteInfo($"All done processing {year}/{monthId}. Number of evaluated matches: {nrOfMatches}");
         }
 
-        private void ProcessGuardianObituary(ObituaryContext ctx, int threshold)
+        private int ProcessGuardianObituary(ObituaryContext ctx, int threshold)
         {
             var nyTimesObitNames = ctx.NyTimesObits.Select(o => o.Subject.NormalizedName).ToList();
             var bestMatch = FuzzySharp.Process.ExtractOne(ctx.Guardian.Subject.NormalizedName, nyTimesObitNames);
             string matchedName = bestMatch.Value;
 
             if (bestMatch.Score < 85 && bestMatch.Score >= 75)
-                ConsoleFormatter.WriteWarning($"Score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually.");
+                ConsoleFormatter.WriteWarning($"Matching score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually.");
 
             /*
                 Score = 80: 'Michael Aris' - 'Michael Caine' (NYTimes)
-                Score = 80: 'Nana Opoku Ware II' - 'Otumfuo Opoku Ware Ii' (NYTimes)
-            Score = 81: 'Obituaries; Gherman Titov' - 'Gherman S. Titov' (NYTimes)
+                Score = 81: 'Obituaries; Gherman Titov' - 'Gherman S. Titov' (NYTimes)
                 Score = 82: 'WD Hamilton' - 'William Donald Hamilton' (NYTimes)
                 Score = 83: 'Barbosa Lima' - 'Alexandre Barboas Lima' (NYTimes)
                 Score = 86: 'Abdul Aziz Ibn Baz' - 'Abdelaziz Bin Baz' (NYTimes)
              */
 
             if (bestMatch.Score < threshold)
-                return;
+                return 0;
 
             ctx.NyTimesSubject = ctx.NyTimesObits.First(o => o.Subject.NormalizedName == matchedName).Subject.Name;
 
             var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(ctx.NyTimesSubject);
-            var exists = TryResolveWikipediaExistence(ctx, nameVersions, matchedName);
+            var exists = TryResolveExistsOnWikipedia(ctx, nameVersions, matchedName);
 
             if (!exists)
             {
                 var candidate = CreateCandidate(ctx.Guardian, ctx.NyTimesObits, matchedName);
-                var msg = ctx.NyTimesSubject.Contains("Name cannot be resolved.")
-                    ? "Weak candidate" : "Strong candidate";
+                var msg = ctx.NyTimesSubject.Contains("Name cannot be resolved.") ? "Weak candidate" : "Strong candidate";
 
                 ConsoleFormatter.WriteSuccess($"{msg}: {candidate}");
             }
+
+            return 1;
         }
 
-        private bool TryResolveWikipediaExistence(ObituaryContext ctx, IEnumerable<string> nameVersions, string matchedName)
+        private bool TryResolveExistsOnWikipedia(ObituaryContext ctx, IEnumerable<string> nameVersions, string matchedName)
         {
             foreach (var version in nameVersions)
             {
-                ConsoleFormatter.WriteInfo($"\tChecking name '{version}'...");
+                ConsoleFormatter.WriteInfo($"Match found: '{version}'. Checking existence on Wikipedia...");
+
                 var pageTitle = _wikipediaApiService.GetPageTitle(version, out bool disamb);
 
                 if (string.IsNullOrEmpty(pageTitle))
@@ -93,7 +102,7 @@ namespace WikipediaBiographyCreator.Services
 
                 if (!disamb)
                 {
-                    ConsoleFormatter.WriteInfo($"Page exists: {pageTitle}");
+                    ConsoleFormatter.WriteInfo($"\tPage exists: {pageTitle}");
                     return true;
                 }
 

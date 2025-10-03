@@ -50,7 +50,7 @@ namespace WikipediaBiographyCreator.Services
             if (entry == null)
                 return false;
 
-            ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+            ConsoleFormatter.WriteInfo($"\tPage exists: {entry}");
             return true;
         }
 
@@ -64,7 +64,7 @@ namespace WikipediaBiographyCreator.Services
             if (entry == null)
                 return false;
 
-            ConsoleFormatter.WriteInfo($"Page exists: {entry}");
+            ConsoleFormatter.WriteInfo($"\tPage exists: {entry}");
             return true;
         }
 
