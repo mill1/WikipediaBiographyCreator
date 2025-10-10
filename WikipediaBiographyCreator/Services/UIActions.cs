@@ -24,6 +24,8 @@ namespace WikipediaBiographyCreator.Services
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
 
+            // TODO: Validation: y >= 1999
+
             _wikipediaBiographyService.FindCandidates(year, monthId);
         }
 
@@ -42,13 +44,13 @@ namespace WikipediaBiographyCreator.Services
             int year = GetIntegerInput("Year:");
             int monthId = GetIntegerInput("Month id:");
 
-            var obits = apiService.ResolveObituariesOfMonth(year, monthId);
+            var obits = apiService.ResolveObituariesOfMonth(year, monthId).OrderBy(o => o.Subject.Name);
 
-            ConsoleFormatter.WriteInfo($"{obits.Count} {sourceName} obituaries have been resolved:");
+            ConsoleFormatter.WriteInfo($"{obits.Count()} {sourceName} obituaries have been resolved:");
 
             foreach (var obit in obits)
             {
-                ConsoleFormatter.WriteInfo($"{obit.Subject.Name}"); // ({obit.Subject.Name})");
+                ConsoleFormatter.WriteInfo($"{obit.Subject.Name}");
             }
         }
 

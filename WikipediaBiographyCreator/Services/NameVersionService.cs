@@ -1,4 +1,6 @@
-﻿using WikipediaBiographyCreator.Interfaces;
+﻿using System.Xml.Linq;
+using WikipediaBiographyCreator.Interfaces;
+using WikipediaBiographyCreator.Models.Guardian;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -42,6 +44,13 @@ namespace WikipediaBiographyCreator.Services
             // Add "only first firstname" version(s) if different
             if (!string.IsNullOrWhiteSpace(onlyFirst) && onlyFirst != allFirstnames)
                 AddWithSuffixOptions(onlyFirst, surname);
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                // Final tweaks
+                results[i] = results[i].Replace(" De ", " de "); // Maurice Couve de Murville
+                results[i] = results[i].Replace(" Da ", " da "); // Neuma Goncalves da Silva, Francisco Da Costa Gomes
+            }
 
             return results.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }

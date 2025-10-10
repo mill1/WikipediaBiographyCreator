@@ -28,7 +28,7 @@ namespace WikipediaBiographyCreator.Console
             _assemblyService = assemblyService;
             _menuItems =
             [
-                new("Find bio candidate", MenuOptions.FindCandidate, _uiActions.FindCandidate),
+                new("Find biography candidate", MenuOptions.FindCandidate, _uiActions.FindCandidate),
                 new("Show Guardian obituary names", MenuOptions.GuardianObits, _uiActions.ShowGuardianObituaries),
                 new("Show NYTimes obituary names", MenuOptions.NYTimesObits, _uiActions.ShowNYTimesObituaries),
                 new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),

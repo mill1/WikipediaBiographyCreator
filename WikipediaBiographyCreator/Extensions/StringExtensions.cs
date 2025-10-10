@@ -43,10 +43,6 @@ namespace WikipediaBiographyCreator.Extensions
 
             var name = string.Join(' ', capitalizedWords) + suffix;
 
-            // Final tweaks
-            name = name.Replace(" De ", " de "); // Maurice Couve de Murville
-            name = name.Replace(" Da ", " da "); // Neuma Goncalves da Silva
-
             return name;
         }
 
