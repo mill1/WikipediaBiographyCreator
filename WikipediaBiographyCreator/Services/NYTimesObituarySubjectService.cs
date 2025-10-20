@@ -29,7 +29,7 @@ namespace WikipediaBiographyCreator.Services
         {
             int i = subjectName.IndexOf(",");
 
-            if (i == -1) // Just one name
+            if (i == -1) // Just one name or new format : 'John J. Rambo' instead of 'Rambo, John J.'
                 return new List<string> { subjectName.CapitalizeName() };
 
             // "BAUMFELD," in request March 1988

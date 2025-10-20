@@ -59,7 +59,7 @@ namespace WikipediaBiographyCreator.Extensions
             {
                 result = "Mc" + char.ToUpper(result[2]) + result.Substring(3);
             }
-            // Special handling for MacX...
+            // Special handling for MacX... (Teo Macero :( )
             else if (result.StartsWith("Mac") && result.Length > 3)
             {
                 result = "Mac" + char.ToUpper(result[3]) + result.Substring(4);

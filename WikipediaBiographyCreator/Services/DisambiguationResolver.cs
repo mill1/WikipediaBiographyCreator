@@ -30,7 +30,7 @@ namespace WikipediaBiographyCreator.Services
             // Check redirect to disambiguation page. 
             if (content.Contains("#REDIRECT"))
             {
-                //Angus MacDonald: Last sentence in body differs:
+                // Angus MacDonald: Last sentence in body differs:
                 // Angus MacDonald, piper, born October 20, 1938; died, June 25, 1999
                 // Get the disambiguation page 
                 var redirectionTarget = GetRedirectTarget(content);

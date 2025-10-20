@@ -122,7 +122,9 @@ namespace WikipediaBiographyCreator.Services
         public static string? FindDisambiguationEntry(string wikiText, int birthYear, int deathYear)
         {
             // Example regex: [[Page title]] ... 1932–2001
-            string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}[-–]{deathYear}\)";
+            //string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}[-–]{deathYear}\)";
+            string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}(?:-|–|—|‒|−|&ndash;|&mdash;|&minus;){deathYear}\)";
+
 
             var match = Regex.Match(wikiText, pattern);
             return match.Success ? match.Groups["title"].Value : null;
