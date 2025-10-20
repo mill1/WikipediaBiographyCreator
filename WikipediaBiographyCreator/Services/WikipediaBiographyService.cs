@@ -69,7 +69,7 @@ namespace WikipediaBiographyCreator.Services
                 Score = 83: 'Barbosa Lima' - 'Alexandre Barboas Lima' (NYTimes)
                 Score = 86: 'Abdul Aziz Ibn Baz' - 'Abdelaziz Bin Baz' (NYTimes)
                 Score = 87: 'E. M. Nathanson' - 'Edwin M. Nathanson' (NYTimes)
-                Score = 76: 'Dino Leventis' - 'Constantine Leventis' (NYTimes)   <-- this was an actual hit. And missing!
+                Score = 76: 'Dino Leventis' - 'Constantine Leventis' (NYTimes)   <-- this was an actual match. And missing!
              */
 
             if (bestMatch.Score < threshold)

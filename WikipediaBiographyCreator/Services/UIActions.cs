@@ -25,6 +25,7 @@ namespace WikipediaBiographyCreator.Services
             int monthId = GetIntegerInput("Month id:");
 
             // TODO: Validation: y >= 1999
+            // TODO: read me: how to add api key
 
             _wikipediaBiographyService.FindCandidates(year, monthId);
         }
