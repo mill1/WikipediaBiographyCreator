@@ -41,7 +41,16 @@ namespace WikipediaBiographyCreator.Extensions
                 return string.Join("-", capitalizedSubWords);
             });
 
-            var name = string.Join(' ', capitalizedWords) + suffix;
+            string name = string.Join(' ', capitalizedWords) + suffix;
+
+            // TODO see x
+            // Final tweaks
+            name = name.Replace(" De ", " de "); // Maurice Couve de Murville
+            name = name.Replace(" Da ", " da "); // Neuma Goncalves da Silva, Francisco Da Costa Gomes
+            name = name.Replace(" Von ", " von "); // Freya von Moltke
+            name = name.Replace(" Van ", " van ");
+            name = name.Replace(" Der ", " der ");
+            name = name.Replace(" La ", " la "); //Miguel de la Madrid
 
             return name;
         }

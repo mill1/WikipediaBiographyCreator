@@ -47,9 +47,14 @@ namespace WikipediaBiographyCreator.Services
 
             for (int i = 0; i < results.Count; i++)
             {
+                // TODO see x
                 // Final tweaks
                 results[i] = results[i].Replace(" De ", " de "); // Maurice Couve de Murville
                 results[i] = results[i].Replace(" Da ", " da "); // Neuma Goncalves da Silva, Francisco Da Costa Gomes
+                results[i] = results[i].Replace(" Von ", " von "); // Freya von Moltke
+                results[i] = results[i].Replace(" Van ", " van ");
+                results[i] = results[i].Replace(" Der ", " der ");
+                results[i] = results[i].Replace(" La ", " la "); //Miguel de la Madrid
             }
 
             return results.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
