@@ -49,7 +49,14 @@ namespace WikipediaBiographyCreator.Services
             var person = doc.keywords.FirstOrDefault(k => k.name == "persons");
 
             if (person != null)
+            {
+                // Strand, Mark (1934-2014) should become Strand, Mark
+                int pos = person.value.IndexOf('(');
+                if (pos > 0)
+                    return person.value.Substring(0, pos).Trim();
+
                 return person.value;
+            }                
             else
             {
                 int pos = doc.headline.main.IndexOf(',');
