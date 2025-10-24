@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
+using WikipediaBiographyCreator.Models.NYTimes;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -75,7 +76,8 @@ namespace WikipediaBiographyCreator.Services
             if (bestMatch.Score < threshold)
                 return 0;
 
-            ctx.NyTimesSubject = ctx.NyTimesObits.First(o => o.Subject.NormalizedName == matchedName).Subject.Name;
+            var nytObitContext = ctx.NyTimesObits.First(o => o.Subject.NormalizedName == matchedName);
+            ctx.NyTimesSubject = nytObitContext.Subject.Name;
 
             var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(ctx.NyTimesSubject);
             var exists = TryResolveExistsOnWikipedia(ctx, nameVersions, matchedName);
@@ -83,9 +85,15 @@ namespace WikipediaBiographyCreator.Services
             if (!exists)
             {
                 var candidate = CreateCandidate(ctx.Guardian, ctx.NyTimesObits, matchedName);
-                var msg = ctx.NyTimesSubject.Contains("Name cannot be resolved.") ? "Weak candidate" : "Strong candidate";
 
-                ConsoleFormatter.WriteSuccess($"{msg}: {candidate}");
+                if (ctx.NyTimesSubject.Contains("Name cannot be resolved."))
+                    ConsoleFormatter.WriteSuccess($"{"Weak candidate"}: {candidate}");
+                else
+                {
+                    ConsoleFormatter.WriteSuccess($"{"Strong candidate"}: {candidate}");
+                    // TODO lw
+                    ConsoleFormatter.WriteError($"Id: {nytObitContext.Id} Error: keywords; \"name\": \"persons\", \"value\": \"{nytObitContext.Subject.Name}\"");
+                }
             }
 
             return 1;

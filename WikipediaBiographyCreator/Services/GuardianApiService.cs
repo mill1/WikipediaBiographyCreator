@@ -60,6 +60,7 @@ namespace WikipediaBiographyCreator.Services
                 obituaries.AddRange(
                     obituaryResults.Select(result => new Obituary
                     {
+                        Id = result.id,
                         Title = result.webTitle,
                         ApiUrl = result.apiUrl,
                         WebUrl = result.webUrl,

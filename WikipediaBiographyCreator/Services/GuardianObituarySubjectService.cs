@@ -96,9 +96,18 @@ namespace WikipediaBiographyCreator.Services
             if (pos >= 0)
                 subjectName = subjectName.Substring(pos + 1).Trim();
 
+            // Loretta Young - actress
+            pos = subjectName.IndexOf(" - ");
+            if (pos > 0)
+                subjectName = subjectName.Substring(0, pos).Trim();
+
+            // Lynden Pindling, Bahamian politician
+            pos = subjectName.IndexOf(", ");
+            if (pos > 0)
+                subjectName = subjectName.Substring(0, pos).Trim();
+
             // One-offs
-            subjectName = subjectName.Replace("Obituari" +
-                "es; ", string.Empty);
+            subjectName = subjectName.Replace("Obituaries; ", string.Empty);
             subjectName = subjectName.Replace(" (letter); ", string.Empty);
 
             return SanitizeSubjectName(subjectName);

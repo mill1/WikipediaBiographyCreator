@@ -42,6 +42,7 @@ namespace WikipediaBiographyCreator.Services
             var obituaries = obituaryDocs
                 .Select(doc => new Obituary
                 {
+                    Id = doc._id,
                     Title = doc.headline.main,
                     WebUrl = doc.web_url,
                     Subject = _obituarySubjectService.Resolve(doc)

@@ -1,4 +1,5 @@
-﻿using WikipediaBiographyCreator.Extensions;
+﻿using WikipediaBiographyCreator.Console;
+using WikipediaBiographyCreator.Extensions;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.NYTimes;
@@ -46,25 +47,41 @@ namespace WikipediaBiographyCreator.Services
 
         private string ResolveSubjectName(Doc doc)
         {
-            var person = doc.keywords.FirstOrDefault(k => k.name == "persons");
+            var persons = doc.keywords.Where(k => k.name == "persons").Select(p => p.value).ToList();
 
-            if (person != null)
+            if(persons.Any())
             {
-                // Strand, Mark (1934-2014) should become Strand, Mark
-                int pos = person.value.IndexOf('(');
-                if (pos > 0)
-                    return person.value.Substring(0, pos).Trim();
+                persons.ForEach(p =>
+                {
+                    // Loose paranthesis stuff;  Strand, Mark (1934-2014) should become Strand, Mark
+                    int pos = p.IndexOf('(');
+                    if (pos > 0)
+                        p = p.Substring(0, pos).Trim();
+                });
 
-                return person.value;
-            }                
+                // If multiple persons are listed, we pick the one best matching the headline
+                var bestMatch = FuzzySharp.Process.ExtractOne(doc.headline.main, persons);
+                string subjectName = bestMatch.Value;
+
+                if(subjectName != persons[0])
+                {
+                    ConsoleFormatter.WriteError($"{subjectName}, not {persons[0]}!");
+                }
+
+                return subjectName;
+            }             
             else
             {
+                // TODO lw: log myt error
+                ConsoleFormatter.WriteError($"Id: {doc._id} Error: keywords; \"name\": \"persons\" is missing");
+
                 int pos = doc.headline.main.IndexOf(',');
 
                 if (pos < 0)
                 {
                     int maxLength = Math.Min(40, doc.headline.main.Length);
-                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, maxLength)}"; // F.i. Skip Spence
+
+                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, maxLength)}"; 
                 }
 
                 return doc.headline.main.Substring(0, pos);
