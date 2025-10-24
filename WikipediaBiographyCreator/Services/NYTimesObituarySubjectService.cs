@@ -72,8 +72,7 @@ namespace WikipediaBiographyCreator.Services
             }             
             else
             {
-                // TODO lw: log myt error
-                ConsoleFormatter.WriteError($"Id: {doc._id} Error: keywords; \"name\": \"persons\" is missing");
+                // ConsoleFormatter.WriteError($"Id: {doc._id} Error: keywords; \"name\": \"persons\" is missing");
 
                 int pos = doc.headline.main.IndexOf(',');
 

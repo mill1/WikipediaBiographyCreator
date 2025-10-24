@@ -43,8 +43,13 @@ namespace WikipediaBiographyCreator.Extensions
 
             string name = string.Join(' ', capitalizedWords) + suffix;
 
-            // TODO see x
-            // Final tweaks
+            return name.TweakName();
+        }
+
+        public static string TweakName(this string str)
+        {
+            string name = str;
+
             name = name.Replace(" De ", " de "); // Maurice Couve de Murville
             name = name.Replace(" Da ", " da "); // Neuma Goncalves da Silva, Francisco Da Costa Gomes
             name = name.Replace(" Von ", " von "); // Freya von Moltke

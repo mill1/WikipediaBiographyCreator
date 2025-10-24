@@ -4,14 +4,6 @@ using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Services;
 
-/*
-    Stap 1: obits bepalen Guardian. Model: suject name, YoB, YoD
-    Stap 2: obits bepalen NYTimes. Model: subject name
-    Stap 3: Gemeenschappelijke subject names bepalen    
-    Stap 4: Voor elke subject name bestaan op Wikipedia bepalen
-    Stap 5: Indien nee; Wikipedia bio creëren met Guardian en NYTimes als referentie
- */
-
 namespace WikipediaBiographyCreator
 {
     public class Program

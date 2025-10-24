@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
-using WikipediaBiographyCreator.Models.NYTimes;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -91,7 +90,7 @@ namespace WikipediaBiographyCreator.Services
                 else
                 {
                     ConsoleFormatter.WriteSuccess($"{"Strong candidate"}: {candidate}");
-                    // TODO lw
+                    // TODO remove after 2015/1
                     ConsoleFormatter.WriteError($"Id: {nytObitContext.Id} Error: keywords; \"name\": \"persons\", \"value\": \"{nytObitContext.Subject.Name}\"");
                 }
             }
@@ -141,7 +140,9 @@ namespace WikipediaBiographyCreator.Services
         public static string? FindDisambiguationEntry(string wikiText, int deathYear)
         {
             // Match: [[Page title]] ... –2001
-            var pattern = $@"\[\[(.*?)\]\]\s*\(\d+[-–]{deathYear}\)";
+            //var pattern = $@"\[\[(.*?)\]\]\s*\(\d+[-–]{deathYear}\)";
+            string pattern = @"\[\[(?<title>[^\]]+)\]\]\s*\((?<birthYear>\d{4})(?:-|–|—|‒|−|&ndash;|&mdash;|&minus;)(?<deathYear>\d{4})\)";
+
 
             var match = Regex.Match(wikiText, pattern);
             if (match.Success)

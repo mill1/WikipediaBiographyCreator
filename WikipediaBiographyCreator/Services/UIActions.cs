@@ -22,10 +22,20 @@ namespace WikipediaBiographyCreator.Services
         public void FindCandidate()
         {
             int year = GetIntegerInput("Year:");
+
+            if (year < 1999)
+            {
+                ConsoleFormatter.WriteWarning("Year must be 1999 or later.");
+                return;
+            }
+
             int monthId = GetIntegerInput("Month id:");
 
-            // TODO: Validation: y >= 1999
-            // TODO: read me: how to add api key
+            if (monthId < 1 || monthId > 13)
+            {
+                ConsoleFormatter.WriteWarning("Month id must be between 1 and 12.");
+                return;
+            }
 
             _wikipediaBiographyService.FindCandidates(year, monthId);
         }
