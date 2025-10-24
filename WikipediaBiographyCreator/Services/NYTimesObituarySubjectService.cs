@@ -49,7 +49,7 @@ namespace WikipediaBiographyCreator.Services
         {
             var persons = doc.keywords.Where(k => k.name == "persons").Select(p => p.value).ToList();
 
-            if(persons.Any())
+            if (persons.Any())
             {
                 persons.ForEach(p =>
                 {
@@ -63,13 +63,13 @@ namespace WikipediaBiographyCreator.Services
                 var bestMatch = FuzzySharp.Process.ExtractOne(doc.headline.main, persons);
                 string subjectName = bestMatch.Value;
 
-                if(subjectName != persons[0])
+                if (subjectName != persons[0])
                 {
                     ConsoleFormatter.WriteError($"{subjectName}, not {persons[0]}!");
                 }
 
                 return subjectName;
-            }             
+            }
             else
             {
                 // ConsoleFormatter.WriteError($"Id: {doc._id} Error: keywords; \"name\": \"persons\" is missing");
@@ -80,7 +80,7 @@ namespace WikipediaBiographyCreator.Services
                 {
                     int maxLength = Math.Min(40, doc.headline.main.Length);
 
-                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, maxLength)}"; 
+                    return $"Name cannot be resolved. Main: {doc.headline.main.Substring(0, maxLength)}";
                 }
 
                 return doc.headline.main.Substring(0, pos);
