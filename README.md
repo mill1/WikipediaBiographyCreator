@@ -40,12 +40,12 @@ Here’s an example configuration:
 ```json
 {
   "GuardianApi": {
-    "ApiKey": "YOUR_GUARDIAN_API_KEY"
-    "BaseUrl": "https://content.guardianapis.com",
+    "ApiKey": "YOUR_GUARDIAN_API_KEY",
+    "BaseUrl": "https://content.guardianapis.com"
   },
   "NYTimesApi": {
-    "ApiKey": "YOUR_NYTIMES_API_KEY"
-    "BaseUrl": "https://api.nytimes.com",
+    "ApiKey": "YOUR_NYTIMES_API_KEY",
+    "BaseUrl": "https://api.nytimes.com"
   },
   "WikipediaApi": {
     "BaseUrl": "https://en.wikipedia.org/w/api.php"
