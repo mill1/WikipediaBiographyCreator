@@ -51,13 +51,13 @@ namespace WikipediaBiographyCreator.Services
 
             if (persons.Any())
             {
-                persons.ForEach(p =>
+                for (int i = 0; i < persons.Count; i++)
                 {
                     // Loose paranthesis stuff;  Strand, Mark (1934-2014) should become Strand, Mark
-                    int pos = p.IndexOf('(');
+                    int pos = persons[i].IndexOf('(');
                     if (pos > 0)
-                        p = p.Substring(0, pos).Trim();
-                });
+                        persons[i] = persons[i].Substring(0, pos).Trim();
+                }
 
                 // If multiple persons are listed, we pick the one best matching the headline
                 var bestMatch = FuzzySharp.Process.ExtractOne(doc.headline.main, persons);
