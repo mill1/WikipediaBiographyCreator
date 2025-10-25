@@ -68,6 +68,19 @@ namespace WikipediaBiographyCreator.Tests
         }
 
         [TestMethod]
+        public void Capitalize_SurnameOBrian()
+        {
+            // Act
+            var versions = _service.GetNameVersions("O'BRIAN, JOHN");
+
+            // Assert
+            versions.Should().HaveCount(1);
+            versions.Should().ContainInOrder(
+                "John O'Brian"
+            );
+        }
+
+        [TestMethod]
         public void CreateVersions_WithInitials()
         {
             // Act

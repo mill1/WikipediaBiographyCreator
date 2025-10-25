@@ -36,7 +36,7 @@ namespace WikipediaBiographyCreator.Extensions
             {
                 var subWords = word.Split('-', StringSplitOptions.RemoveEmptyEntries);
 
-                var capitalizedSubWords = subWords.Select(CapitalizeWordWithMcMac);
+                var capitalizedSubWords = subWords.Select(HandleBritishNameCapitalization);
 
                 return string.Join("-", capitalizedSubWords);
             });
@@ -60,7 +60,7 @@ namespace WikipediaBiographyCreator.Extensions
             return name;
         }
 
-        private static string CapitalizeWordWithMcMac(string word)
+        private static string HandleBritishNameCapitalization(string word)
         {
             if (string.IsNullOrEmpty(word))
                 return word;
@@ -79,7 +79,7 @@ namespace WikipediaBiographyCreator.Extensions
                 result = "Mac" + char.ToUpper(result[3]) + result.Substring(4);
             }
             // Special handling for O'X...
-            else if (result.StartsWith("O'") && result.Length > 2)
+            else if ((result.StartsWith("O'") || result.StartsWith("O’")) && result.Length > 2)
             {
                 result = "O'" + char.ToUpper(result[2]) + result.Substring(3);
             }

@@ -16,7 +16,7 @@ namespace WikipediaBiographyCreator.Services
         }
 
         public Subject Resolve(Doc doc)
-        {
+        { 
             var subjectName = ResolveSubjectName(doc);
 
             return new Subject
@@ -65,7 +65,8 @@ namespace WikipediaBiographyCreator.Services
 
                 if (subjectName != persons[0])
                 {
-                    ConsoleFormatter.WriteError($"{subjectName}, not {persons[0]}!");
+                    int maxLength = Math.Min(40, doc.headline.main.Length);
+                    ConsoleFormatter.WriteError($"\"{subjectName}\", not \"{persons[0]}\"! Main: {doc.headline.main.Substring(0, maxLength)}");
                 }
 
                 return subjectName;

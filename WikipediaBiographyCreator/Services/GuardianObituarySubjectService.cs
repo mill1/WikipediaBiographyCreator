@@ -116,13 +116,13 @@ namespace WikipediaBiographyCreator.Services
         private static string GetNormalizedName(string subjectName)
         {
             // Add a point behind any single uppercase letters (A-Z) except when it is situated at the end.
-            var GetNormalizedName = Regex.Replace(
+            var normalizedName = Regex.Replace(
                 subjectName,
                 @"\b([A-Z])\b(?!$)",
                 "$1."
             );
 
-            return GetNormalizedName;
+            return normalizedName;
         }
 
         private static string SanitizeSubjectName(string subjectName)
