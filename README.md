@@ -2,7 +2,7 @@ Wikipedia Biography Creator
 ===========================
 
 **Wikipedia Biography Creator** is a .NET console application that looks for candidates for which to create a biography article on Wikipedia using obituaries as sources. To achieve that it cross-references obituary archives from **The New York Times** and **The Guardian**, applies fuzzy matching to identify overlapping mentions of deceased individuals, and checks whether those individuals already have a biography article on **Wikipedia**.<br>
-Results are displayed per month in a clean console UI. Candidates need to checked for existence manually on Wikipedia before creating the actual page.
+Results are displayed per month in a clean console UI. Candidates need to checked for existence on Wikipedia manually before creating the actual page.
 
 ## ✨ Features
 - Fetch obituaries from:
@@ -13,7 +13,6 @@ Results are displayed per month in a clean console UI. Candidates need to checke
 - Queries **Wikipedia** to check for existing biographies.    
 - Displays results per month in a structured **console UI**.    
 - Modular architecture with clear separation of concerns (services, models, interfaces).
-
 
 ## 🧱 Prerequisites
 
@@ -53,7 +52,7 @@ Here’s an example configuration:
 💡 **Note:**
 - **API keys are required for The Guardian and The New York Times services.**
 - The Wikipedia API is public and does not require a key.
-- The Fuzzy search score threshold determine when names of deceased in the two sources are matched.
+- The Fuzzy search score threshold determines when names of deceased in the two sources are matched.
 
 ## 🏗️ Building and running the Application
 
