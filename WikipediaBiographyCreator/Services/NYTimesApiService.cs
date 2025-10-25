@@ -24,7 +24,7 @@ namespace WikipediaBiographyCreator.Services
             _configuration = configuration;
             _httpClient = httpClient;
             _obituarySubjectService = obituarySubjectService;
-            _httpClient.BaseAddress = new Uri("https://api.nytimes.com");
+            _httpClient.BaseAddress = new Uri(_configuration["NYTimes:BaseUrl"]);
 
             var assemblyName = assemblyService.GetAssemblyName();
             string agent = $"{assemblyName.Name} v.{assemblyName.Version}";
@@ -123,7 +123,7 @@ namespace WikipediaBiographyCreator.Services
         {
             string apiKey = _configuration["NYTimes:ApiKey"];
 
-            if (apiKey == null || apiKey == "TOSET")
+            if (apiKey == null || apiKey == "YOUR_NYTIMES_API_KEY")
             {
                 throw new AppException("NYTimes API key is not set in appsettings.json. Consult the README.");
             }

@@ -36,7 +36,7 @@ namespace WikipediaBiographyCreator.Services
             _configuration = configuration;
             _httpClient = httpClient;
             _obituarySubjectService = obituarySubjectService;
-            _httpClient.BaseAddress = new Uri("https://content.guardianapis.com");
+            _httpClient.BaseAddress = new Uri(_configuration["Guardian:BaseUrl"]);
 
             var assemblyName = assemblyService.GetAssemblyName();
             string agent = $"{assemblyName.Name} v.{assemblyName.Version}";
@@ -154,7 +154,7 @@ namespace WikipediaBiographyCreator.Services
         {
             string apiKey = _configuration["Guardian:ApiKey"];
 
-            if (apiKey == null || apiKey == "TOSET")
+            if (apiKey == null || apiKey == "YOUR_GUARDIAN_API_KEY")
             {
                 throw new AppException("Guardian API key is not set in appsettings.json. Consult the README.");
             }
