@@ -36,7 +36,7 @@ namespace WikipediaBiographyCreator.Services
             _configuration = configuration;
             _httpClient = httpClient;
             _obituarySubjectService = obituarySubjectService;
-            _httpClient.BaseAddress = new Uri(_configuration["Guardian:BaseUrl"]);
+            _httpClient.BaseAddress = new Uri(_configuration["GuardianApi:BaseUrl"]);
 
             var assemblyName = assemblyService.GetAssemblyName();
             string agent = $"{assemblyName.Name} v.{assemblyName.Version}";
@@ -152,7 +152,7 @@ namespace WikipediaBiographyCreator.Services
 
         private string GetApiKey()
         {
-            string apiKey = _configuration["Guardian:ApiKey"];
+            string apiKey = _configuration["GuardianApi:ApiKey"];
 
             if (apiKey == null || apiKey == "YOUR_GUARDIAN_API_KEY")
             {

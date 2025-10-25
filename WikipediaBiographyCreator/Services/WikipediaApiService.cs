@@ -16,7 +16,7 @@ namespace WikipediaBiographyCreator.Services
             IAssemblyService assemblyService)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("https://en.wikipedia.org");
+            _httpClient.BaseAddress = new Uri(configuration["WikipediaApi:BaseUrl"]);
 
             var assemblyName = assemblyService.GetAssemblyName();
             string agent = $"{assemblyName.Name} v.{assemblyName.Version}";
@@ -77,9 +77,9 @@ namespace WikipediaBiographyCreator.Services
 
         public string GetPageContent(string pageName)
         {
-            string url = $"w/api.php?action=query&titles={Uri.EscapeDataString(pageName)}&prop=pageprops&redirects=1&format=json";
+            string url = $"?action=query&titles={Uri.EscapeDataString(pageName)}&prop=pageprops&redirects=1&format=json";
 
-            url = $"w/api.php?action=query&prop=revisions&rvprop=content&rvslots=*&titles={Uri.EscapeDataString(pageName)}&format=json";
+            url = $"?action=query&prop=revisions&rvprop=content&rvslots=*&titles={Uri.EscapeDataString(pageName)}&format=json";
 
             string json = _httpClient.GetStringAsync(url).Result;
             var obj = JObject.Parse(json);
@@ -113,7 +113,7 @@ namespace WikipediaBiographyCreator.Services
 
         private JObject GetResponse(string nameVersion)
         {
-            string url = $"w/api.php?action=query&titles={Uri.EscapeDataString(nameVersion)}&prop=pageprops&redirects=1&format=json";
+            string url = $"?action=query&titles={Uri.EscapeDataString(nameVersion)}&prop=pageprops&redirects=1&format=json";
 
             string json = _httpClient.GetStringAsync(url).Result;
             return JObject.Parse(json);

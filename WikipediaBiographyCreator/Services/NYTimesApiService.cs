@@ -24,7 +24,7 @@ namespace WikipediaBiographyCreator.Services
             _configuration = configuration;
             _httpClient = httpClient;
             _obituarySubjectService = obituarySubjectService;
-            _httpClient.BaseAddress = new Uri(_configuration["NYTimes:BaseUrl"]);
+            _httpClient.BaseAddress = new Uri(_configuration["NYTimesApi:BaseUrl"]);
 
             var assemblyName = assemblyService.GetAssemblyName();
             string agent = $"{assemblyName.Name} v.{assemblyName.Version}";
@@ -121,7 +121,7 @@ namespace WikipediaBiographyCreator.Services
 
         private string GetApiKey()
         {
-            string apiKey = _configuration["NYTimes:ApiKey"];
+            string apiKey = _configuration["NYTimesApi:ApiKey"];
 
             if (apiKey == null || apiKey == "YOUR_NYTIMES_API_KEY")
             {
