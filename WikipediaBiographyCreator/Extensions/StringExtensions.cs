@@ -83,6 +83,11 @@ namespace WikipediaBiographyCreator.Extensions
             {
                 result = "O'" + char.ToUpper(result[2]) + result.Substring(3);
             }
+            // Special handling for D' (Suso Cecchi D'amico)
+            else if ((result.StartsWith("D'") || result.StartsWith("D’")) && result.Length > 2)
+            {
+                result = "D'" + char.ToUpper(result[2]) + result.Substring(3);
+            }
 
             return result;
         }
