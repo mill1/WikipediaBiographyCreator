@@ -5,7 +5,7 @@ Wikipedia Biography Creator
 Results are displayed per month in a clean console UI. Candidates need to checked for existence on Wikipedia manually before creating the actual page.
 
 ## ✨ Features
-- Fetch obituaries from:
+- Fetches obituaries from:
   - 📰 The Guardian API  
   - 🗞️ The New York Times API    
 - Applies **fuzzy text matching** to match obituary subjects across sources.    
