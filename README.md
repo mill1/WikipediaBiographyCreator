@@ -5,8 +5,7 @@ Wikipedia Biography Creator
 
 Results are displayed per month in a clean console UI.
 
-✨ Features
-----------
+## ✨ Features
 - Fetch obituaries from:
   - 📰 The Guardian API  
   - 🗞️ The New York Times API    
@@ -17,8 +16,6 @@ Results are displayed per month in a clean console UI.
 - Modular architecture with clear separation of concerns (services, models, interfaces).
 
 
----
-
 ## 🧱 Prerequisites
 
 Before building the project, make sure you have:
@@ -28,8 +25,6 @@ Before building the project, make sure you have:
 - API keys for:
   - **[The Guardian Open Platform](https://open-platform.theguardian.com/access/)**
   - **[The New York Times Archive API](https://developer.nytimes.com/apis)**
-
----
 
 ## ⚙️ Configuration
 
@@ -58,9 +53,8 @@ Here’s an example configuration:
 
 💡 **Note:**
 - **API keys are required for The Guardian and The New York Times services.**
-- **The Wikipedia API is public and does not require a key.**
-
----
+- The Wikipedia API is public and does not require a key.
+- The Fuzzy search score threshold determine when names of deceased in the two sources are matched.
 
 ## 🏗️ Building and running the Application
 
@@ -75,8 +69,6 @@ To run it:
 dotnet run
 `<br>
 The UI should explain itself.
-
----
 
 ## 🪪 License
 
