@@ -51,10 +51,6 @@ namespace WikipediaBiographyCreator.Services
                 if (!snippet.Contains(" died "))
                     return (dateOfBirth, dateOfDeath);
 
-                //var regex = new Regex(
-                //    @"(?<dob>(?:[A-Za-z]+\s+\d{1,2},?\s+\d{4}))\s*;\s*died\s+(?<dod>(?:[A-Za-z]+\s+\d{1,2},?\s+\d{4}))",
-                //    RegexOptions.IgnoreCase);
-
                 var regex = new Regex(
                     @"(?<dob>(?:\d{1,2}\s+[A-Za-z]+|\b[A-Za-z]+\s+\d{1,2}),?\s+\d{4})\s*;\s*died\s+(?<dod>(?:\d{1,2}\s+[A-Za-z]+|\b[A-Za-z]+\s+\d{1,2}),?\s+\d{4})",
                     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);

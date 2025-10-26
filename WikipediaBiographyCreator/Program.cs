@@ -6,6 +6,9 @@ using WikipediaBiographyCreator.Services;
 
 namespace WikipediaBiographyCreator
 {
+    /*
+       Results can be found here: https://en.wikipedia.org/wiki/User:Mill_1/Project_Finding_The_Forgotten_Few
+     */
     public class Program
     {
         static void Main(string[] args)
