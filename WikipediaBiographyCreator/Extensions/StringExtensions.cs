@@ -50,12 +50,13 @@ namespace WikipediaBiographyCreator.Extensions
         {
             string name = str;
 
-            name = name.Replace(" De ", " de "); // Maurice Couve de Murville
-            name = name.Replace(" Da ", " da "); // Neuma Goncalves da Silva, Francisco Da Costa Gomes
-            name = name.Replace(" Von ", " von "); // Freya von Moltke
-            name = name.Replace(" Van ", " van ");
+            name = name.Replace(" De ", " de ");      // Maurice Couve de Murville
+            name = name.Replace(" Da ", " da ");      // Neuma Goncalves da Silva, Francisco Da Costa Gomes
+            name = name.Replace(" Von ", " von ");    // Freya von Moltke
+            // name = name.Replace(" Van ", " van ");    too many false positives e.g. Dick Van Dyke
             name = name.Replace(" Der ", " der ");
-            name = name.Replace(" La ", " la "); //Miguel de la Madrid
+            name = name.Replace(" Of ", " of ");      // Duchess of Alba
+            name = name.Replace(" La ", " la ");      //Miguel de la Madrid
 
             return name;
         }

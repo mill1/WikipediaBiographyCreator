@@ -90,7 +90,7 @@ namespace WikipediaBiographyCreator.Services
                 else
                 {
                     ConsoleFormatter.WriteSuccess($"{"Strong candidate"}: {candidate}");
-                    // TODO remove after 2015/1
+                    // TODO lw
                     ConsoleFormatter.WriteError($"Id: {nytObitContext.Id} Error: keywords; \"name\": \"persons\", \"value\": \"{nytObitContext.Subject.Name}\"");
                 }
             }
@@ -129,7 +129,6 @@ namespace WikipediaBiographyCreator.Services
         public static string? FindDisambiguationEntry(string wikiText, int birthYear, int deathYear)
         {
             // Example regex: [[Page title]] ... 1932–2001
-            //string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}[-–]{deathYear}\)";
             string pattern = $@"\[\[(?<title>[^\]]+)\]\]\s*\({birthYear}(?:-|–|—|‒|−|&ndash;|&mdash;|&minus;){deathYear}\)";
 
 
@@ -140,7 +139,6 @@ namespace WikipediaBiographyCreator.Services
         public static string? FindDisambiguationEntry(string wikiText, int deathYear)
         {
             // Match: [[Page title]] ... –2001
-            //var pattern = $@"\[\[(.*?)\]\]\s*\(\d+[-–]{deathYear}\)";
             string pattern = @"\[\[(?<title>[^\]]+)\]\]\s*\((?<birthYear>\d{4})(?:-|–|—|‒|−|&ndash;|&mdash;|&minus;)(?<deathYear>\d{4})\)";
 
 
