@@ -75,7 +75,7 @@ namespace WikipediaBiographyCreator.Services
             {
                 return match.Groups[1].Value;
             }
-            throw new Exception("Redirection target could not be resolved.");
+            throw new Exception("Redirection target could not be resolved."); // Tommy_Devito: #REDIRECT[[Tommy DeVito]]
         }
     }
 }

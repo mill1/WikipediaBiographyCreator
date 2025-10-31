@@ -69,11 +69,18 @@ namespace WikipediaBiographyCreator.Services
                 Score = 83: 'Barbosa Lima' - 'Alexandre Barboas Lima' (NYTimes)
                 Score = 86: 'Abdul Aziz Ibn Baz' - 'Abdelaziz Bin Baz' (NYTimes)
                 Score = 87: 'E. M. Nathanson' - 'Edwin M. Nathanson' (NYTimes)
-                Score = 76: 'Dino Leventis' - 'Constantine Leventis' (NYTimes)   <-- this was an actual match. And missing!
+                Score = 76: 'Dino Leventis' - 'Constantine Leventis' (NYTimes)   <-- this was an actual match. And missing!                
              */
 
             if (bestMatch.Score < threshold)
                 return 0;
+
+            /*
+                First false positive w.r. to July 2020:
+                John R. Lewis
+                https://www.theguardian.com/film/2020/jul/14/lewis-john-carlino-obituary
+                https://www.nytimes.com/2020/07/17/us/john-lewis-dead.html
+             */
 
             var nytObitContext = ctx.NyTimesObits.First(o => o.Subject.NormalizedName == matchedName);
             ctx.NyTimesSubject = nytObitContext.Subject.Name;
@@ -90,8 +97,6 @@ namespace WikipediaBiographyCreator.Services
                 else
                 {
                     ConsoleFormatter.WriteSuccess($"{"Strong candidate"}: {candidate}");
-                    // TODO lw
-                    ConsoleFormatter.WriteError($"Id: {nytObitContext.Id} Error: keywords; \"name\": \"persons\", \"value\": \"{nytObitContext.Subject.Name}\"");
                 }
             }
 
@@ -107,6 +112,7 @@ namespace WikipediaBiographyCreator.Services
                 var pageTitle = _wikipediaApiService.GetPageTitle(version, out bool disamb);
 
                 if (string.IsNullOrEmpty(pageTitle))
+                    // No page found for this name version, try next
                     continue;
 
                 if (!disamb)
