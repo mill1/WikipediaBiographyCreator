@@ -43,6 +43,7 @@ namespace WikipediaBiographyCreator.Services
                 .Select(doc => new Obituary
                 {
                     Id = doc._id,
+                    PublicationDate = DateOnly.FromDateTime(doc.pub_date),
                     Title = doc.headline.main,
                     WebUrl = doc.web_url,
                     Subject = _obituarySubjectService.Resolve(doc)

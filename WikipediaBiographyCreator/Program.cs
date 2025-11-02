@@ -41,10 +41,12 @@ namespace WikipediaBiographyCreator
             .AddScoped<IGuardianApiService, GuardianApiService>()
             .AddScoped<IGuardianObituarySubjectService, GuardianObituarySubjectService>()
             .AddScoped<INYTimesApiService, NYTimesApiService>()
-            .AddScoped<INYTimesObituarySubjectService, NYTimesObituarySubjectService>();
+            .AddScoped<INYTimesObituarySubjectService, NYTimesObituarySubjectService>()
+            .AddScoped<IIndependentApiService, IndependentApiService>();
 
             services.AddHttpClient<IGuardianApiService, GuardianApiService>();
             services.AddHttpClient<INYTimesApiService, NYTimesApiService>();
+            services.AddHttpClient<IIndependentApiService, IndependentApiService>();
 
             return services;
         }

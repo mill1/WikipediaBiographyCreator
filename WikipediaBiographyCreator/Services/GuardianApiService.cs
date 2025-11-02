@@ -61,6 +61,7 @@ namespace WikipediaBiographyCreator.Services
                     obituaryResults.Select(result => new Obituary
                     {
                         Id = result.id,
+                        PublicationDate = DateOnly.FromDateTime(result.webPublicationDate),
                         Title = result.webTitle,
                         ApiUrl = result.apiUrl,
                         WebUrl = result.webUrl,
@@ -147,7 +148,6 @@ namespace WikipediaBiographyCreator.Services
                 return response.Content.ReadAsStringAsync().Result;
             else
                 throw new AppException($"Error retrieving Guardian archive: {response.ReasonPhrase}");
-
         }
 
         private string GetApiKey()

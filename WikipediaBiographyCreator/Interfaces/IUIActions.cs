@@ -5,6 +5,8 @@
         void FindCandidate();
         void ShowGuardianObituaries();
         void ShowNYTimesObituaries();
+
+        void ShowIndependentObituaries();
         void TestStuff();
     }
 }

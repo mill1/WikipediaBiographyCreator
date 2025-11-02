@@ -7,6 +7,7 @@
         public required Subject Subject { get; set; }
         public required string WebUrl { get; set; }
         public string ApiUrl { get; set; }
+        public required DateOnly PublicationDate { get; set; }
     }
 
     public class Subject

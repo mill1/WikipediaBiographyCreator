@@ -1,5 +1,8 @@
-﻿using WikipediaBiographyCreator.Console;
+﻿using Newtonsoft.Json;
+using WikipediaBiographyCreator.Console;
+using WikipediaBiographyCreator.Exceptions;
 using WikipediaBiographyCreator.Interfaces;
+using WikipediaBiographyCreator.Models.Independent;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -7,15 +10,18 @@ namespace WikipediaBiographyCreator.Services
     {
         private readonly IGuardianApiService _guardianApiService;
         private readonly INYTimesApiService _nyTimesApiService;
+        private readonly IIndependentApiService _independentApiService;
         private readonly IWikipediaBiographyService _wikipediaBiographyService;
 
         public UIActions(
             IGuardianApiService guardianApiService,
             INYTimesApiService nyTimesApiService,
+            IIndependentApiService independentApiService,
             IWikipediaBiographyService wikipediaBiographyService)
         {
             _guardianApiService = guardianApiService;
             _nyTimesApiService = nyTimesApiService;
+            _independentApiService = independentApiService;
             _wikipediaBiographyService = wikipediaBiographyService;
         }
 
@@ -50,9 +56,19 @@ namespace WikipediaBiographyCreator.Services
             ShowObituaryNames(_nyTimesApiService, "NYTimes");
         }
 
+        public void ShowIndependentObituaries()
+        {
+            ShowObituaryNames(_independentApiService, "Independent");
+        }
+
         private void ShowObituaryNames(IApiService apiService, string sourceName)
         {
             int year = GetIntegerInput("Year:");
+
+            if(sourceName == "Guardian")
+                if (year < 1999)
+                    throw new ArgumentException("Year must be 1999 or later.");
+
             int monthId = GetIntegerInput("Month id:");
 
             var obits = apiService.ResolveObituariesOfMonth(year, monthId).OrderBy(o => o.Subject.Name);
@@ -67,10 +83,27 @@ namespace WikipediaBiographyCreator.Services
 
         public void TestStuff()
         {
-            int partySize = GetIntegerInput("Party size:");
-            ConsoleFormatter.WriteInfo($"Checking data for party size {partySize}...");
-            Thread.Sleep(2000);
-            ConsoleFormatter.WriteInfo("Stuff has been tested");
+            // TODO lw Tmp
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            var fullPath = Path.Combine(baseDir, "Data", "independent-obituaries-test.json");
+
+            if (!File.Exists(fullPath))
+                throw new FileNotFoundException($"File not found: {fullPath}");
+            
+            string json = File.ReadAllText(fullPath);
+
+            var archive = JsonConvert.DeserializeObject<string[][]>(json);
+
+            List<string> articleUrls = archive.Select(a => a[2]).Skip(1).ToList();
+
+            _independentApiService.CreateDataSetTmp(articleUrls);
+
+            // TODO lw
+            //int partySize = GetIntegerInput("Party size:");
+            //ConsoleFormatter.WriteInfo($"Checking data for party size {partySize}...");
+            //Thread.Sleep(2000);
+            //ConsoleFormatter.WriteInfo("Stuff has been tested");
         }
 
         private static int GetIntegerInput(string prompt)
