@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using WikipediaBiographyCreator.Console;
+﻿using WikipediaBiographyCreator.Console;
 using WikipediaBiographyCreator.Exceptions;
 using WikipediaBiographyCreator.Interfaces;
-using WikipediaBiographyCreator.Models.Independent;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -25,25 +23,37 @@ namespace WikipediaBiographyCreator.Services
             _wikipediaBiographyService = wikipediaBiographyService;
         }
 
-        public void FindCandidate()
+        public void CrossRefGuardian()
         {
             int year = GetIntegerInput("Year:");
 
             if (year < 1999)
-            {
-                ConsoleFormatter.WriteWarning("Year must be 1999 or later.");
-                return;
-            }
+                throw new AppException("Year must be 1999 or later.");
 
             int monthId = GetIntegerInput("Month id:");
 
             if (monthId < 1 || monthId > 13)
-            {
-                ConsoleFormatter.WriteWarning("Month id must be between 1 and 12.");
-                return;
-            }
+                throw new AppException("Month id must be between 1 and 12.");
 
-            _wikipediaBiographyService.FindCandidates(year, monthId);
+            _wikipediaBiographyService.CrossReferenceWithNYTimes(year, monthId, true);
+        }
+
+        public void CrossRefIndependent()
+        {
+            int year = GetIntegerInput("Year:");
+
+            if (year < 1992)
+                throw new AppException("Year must be 1992 or later.");
+
+            int monthId = GetIntegerInput("Month id:");
+
+            if (monthId < 1 || monthId > 13)
+                throw new AppException("Month id must be between 1 and 12.");
+
+            if (year == 1992 && monthId < 7)
+                throw new AppException("Month  must be July 1992 or later.");
+
+            _wikipediaBiographyService.CrossReferenceWithNYTimes(year, monthId, false);
         }
 
         public void ShowGuardianObituaries()
@@ -67,17 +77,17 @@ namespace WikipediaBiographyCreator.Services
 
             if(sourceName == "Guardian")
                 if (year < 1999)
-                    throw new ArgumentException("Year must be 1999 or later.");
+                    throw new AppException("Year must be 1999 or later.");
 
             if (sourceName == "Independent")
                 if (year < 1992)
-                    throw new ArgumentException("Year must be 1992 or later.");
+                    throw new AppException("Year must be 1992 or later.");
 
             int monthId = GetIntegerInput("Month id:");
 
             if (sourceName == "Independent")
                 if (year == 1992 && monthId < 7)
-                    throw new ArgumentException("Month  must be July 1992 or later.");
+                    throw new AppException("Month  must be July 1992 or later.");
 
             var obits = apiService.ResolveObituariesOfMonth(year, monthId).OrderBy(o => o.Subject.Name);
 

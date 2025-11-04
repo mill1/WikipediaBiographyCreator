@@ -15,9 +15,10 @@ namespace WikipediaBiographyCreator.Console
 
         private static class MenuOptions
         {
-            public const string FindCandidate = "f";
-            public const string GuardianObits = "g";
+            public const string CrossRefGuardian = "f";
+            public const string CrossRefIndy = "c";
             public const string NYTimesObits = "n";
+            public const string GuardianObits = "g";
             public const string IndependentObits = "i";
             public const string TestStuff = "t";
             public const string Quit = "q";
@@ -29,9 +30,10 @@ namespace WikipediaBiographyCreator.Console
             _assemblyService = assemblyService;
             _menuItems =
             [
-                new("Find biography candidate", MenuOptions.FindCandidate, _uiActions.FindCandidate),
-                new("Show Guardian obituary names", MenuOptions.GuardianObits, _uiActions.ShowGuardianObituaries),
+                new("Find candidate; cross-ref Guardian", MenuOptions.CrossRefGuardian, _uiActions.CrossRefGuardian),
+                new("Find candidate; cross-ref Independent", MenuOptions.CrossRefIndy, _uiActions.CrossRefIndependent),
                 new("Show NYTimes obituary names", MenuOptions.NYTimesObits, _uiActions.ShowNYTimesObituaries),
+                new("Show Guardian obituary names", MenuOptions.GuardianObits, _uiActions.ShowGuardianObituaries),
                 new("Show Independent obituary names", MenuOptions.IndependentObits, _uiActions.ShowIndependentObituaries),
                 new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),
                 new("Quit", MenuOptions.Quit, () => _quit = true)

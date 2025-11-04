@@ -2,10 +2,10 @@
 {
     public interface IUIActions
     {
-        void FindCandidate();
+        void CrossRefGuardian();
+        void CrossRefIndependent();
         void ShowGuardianObituaries();
         void ShowNYTimesObituaries();
-
         void ShowIndependentObituaries();
         void TestStuff();
     }

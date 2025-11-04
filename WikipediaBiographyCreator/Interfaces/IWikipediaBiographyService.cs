@@ -4,7 +4,7 @@ namespace WikipediaBiographyCreator.Interfaces
 {
     public interface IWikipediaBiographyService
     {
-        void FindCandidates(int year, int monthId);
+        void CrossReferenceWithNYTimes(int year, int monthId, bool guardian);
 
         Candidate CreateBiography();
     }

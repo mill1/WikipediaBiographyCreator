@@ -31,8 +31,12 @@ namespace WikipediaBiographyCreator.Services
             _disambiguationResolver = disambiguationResolver;
         }
 
-        public void FindCandidates(int year, int monthId)
+        public void CrossReferenceWithNYTimes(int year, int monthId, bool guardian)
         {
+            // TODO
+            if (!guardian)
+                throw new NotImplementedException("donderdag");
+
             ConsoleFormatter.WriteInfo($"Finding candidates for {year}/{monthId}...");
 
             var guardianObits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
