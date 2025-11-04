@@ -69,7 +69,15 @@ namespace WikipediaBiographyCreator.Services
                 if (year < 1999)
                     throw new ArgumentException("Year must be 1999 or later.");
 
+            if (sourceName == "Independent")
+                if (year < 1992)
+                    throw new ArgumentException("Year must be 1992 or later.");
+
             int monthId = GetIntegerInput("Month id:");
+
+            if (sourceName == "Independent")
+                if (year == 1992 && monthId < 7)
+                    throw new ArgumentException("Month  must be July 1992 or later.");
 
             var obits = apiService.ResolveObituariesOfMonth(year, monthId).OrderBy(o => o.Subject.Name);
 
@@ -83,27 +91,11 @@ namespace WikipediaBiographyCreator.Services
 
         public void TestStuff()
         {
-            // TODO lw Tmp
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            int partySize = GetIntegerInput("Party size:");
 
-            var fullPath = Path.Combine(baseDir, "Data", "independent-obituaries-test.json");
-
-            if (!File.Exists(fullPath))
-                throw new FileNotFoundException($"File not found: {fullPath}");
-            
-            string json = File.ReadAllText(fullPath);
-
-            var archive = JsonConvert.DeserializeObject<string[][]>(json);
-
-            List<string> articleUrls = archive.Select(a => a[2]).Skip(1).ToList();
-
-            _independentApiService.CreateDataSetTmp(articleUrls);
-
-            // TODO lw
-            //int partySize = GetIntegerInput("Party size:");
-            //ConsoleFormatter.WriteInfo($"Checking data for party size {partySize}...");
-            //Thread.Sleep(2000);
-            //ConsoleFormatter.WriteInfo("Stuff has been tested");
+            ConsoleFormatter.WriteInfo($"Checking data for party size {partySize}...");
+            Thread.Sleep(2000);
+            ConsoleFormatter.WriteInfo("Stuff has been tested");
         }
 
         private static int GetIntegerInput(string prompt)

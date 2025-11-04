@@ -42,7 +42,7 @@ namespace WikipediaBiographyCreator
             .AddScoped<IGuardianObituarySubjectService, GuardianObituarySubjectService>()
             .AddScoped<INYTimesApiService, NYTimesApiService>()
             .AddScoped<INYTimesObituarySubjectService, NYTimesObituarySubjectService>()
-            .AddScoped<IIndependentApiService, IndependentApiService>();
+            .AddScoped<IIndependentApiService, IndependentApiService>(); // TODO test caching
 
             services.AddHttpClient<IGuardianApiService, GuardianApiService>();
             services.AddHttpClient<INYTimesApiService, NYTimesApiService>();
