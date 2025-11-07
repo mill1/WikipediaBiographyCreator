@@ -39,12 +39,15 @@ namespace WikipediaBiographyCreator
             .AddScoped<INameVersionService, NameVersionService>()
             .AddScoped<IDisambiguationResolver, DisambiguationResolver>()
             .AddScoped<IGuardianApiService, GuardianApiService>()
-            .AddScoped<IGuardianObituarySubjectService, GuardianObituarySubjectService>()
+            .AddScoped<IGuardianObitSubjectService, GuardianObitSubjectService>()
             .AddScoped<INYTimesApiService, NYTimesApiService>()
-            .AddScoped<INYTimesObituarySubjectService, NYTimesObituarySubjectService>();
+            .AddScoped<INYTimesObitSubjectService, NYTimesObitSubjectService>()
+            .AddScoped<IIndependentApiService, IndependentApiService>()
+            .AddScoped<IIndependentObitSubjectService, IndependentObitSubjectService>();
 
             services.AddHttpClient<IGuardianApiService, GuardianApiService>();
             services.AddHttpClient<INYTimesApiService, NYTimesApiService>();
+            services.AddHttpClient<IIndependentApiService, IndependentApiService>();
 
             return services;
         }

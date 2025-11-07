@@ -13,12 +13,12 @@ namespace WikipediaBiographyCreator.Services
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
-        private readonly INYTimesObituarySubjectService _obituarySubjectService;
+        private readonly INYTimesObitSubjectService _obituarySubjectService;
 
         public NYTimesApiService(
             IConfiguration configuration,
             HttpClient httpClient,
-            INYTimesObituarySubjectService obituarySubjectService,
+            INYTimesObitSubjectService obituarySubjectService,
             IAssemblyService assemblyService)
         {
             _configuration = configuration;
@@ -43,8 +43,11 @@ namespace WikipediaBiographyCreator.Services
                 .Select(doc => new Obituary
                 {
                     Id = doc._id,
+                    Source = "NYTimes",
+                    PublicationDate = DateOnly.FromDateTime(doc.pub_date),
                     Title = doc.headline.main,
                     WebUrl = doc.web_url,
+                    FullTextUrl = doc.uri.ToString(),
                     Subject = _obituarySubjectService.Resolve(doc)
                 })
                 .GroupBy(o => o.Subject.NormalizedName).Select(grp => grp.First()) // Remove duplicates 

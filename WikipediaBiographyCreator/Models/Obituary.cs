@@ -3,10 +3,12 @@
     public class Obituary
     {
         public required string Id { get; set; }
+        public required string Source { get; set; }
         public required string Title { get; set; }
         public required Subject Subject { get; set; }
         public required string WebUrl { get; set; }
-        public string ApiUrl { get; set; }
+        public required string FullTextUrl { get; set; }
+        public required DateOnly PublicationDate { get; set; }
     }
 
     public class Subject

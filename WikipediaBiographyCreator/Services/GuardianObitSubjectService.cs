@@ -7,7 +7,7 @@ using WikipediaBiographyCreator.Models.Guardian;
 
 namespace WikipediaBiographyCreator.Services
 {
-    public class GuardianObituarySubjectService : IGuardianObituarySubjectService
+    public class GuardianObitSubjectService : IGuardianObitSubjectService
     {
         public Subject Resolve(Result obituary)
         {
@@ -54,7 +54,6 @@ namespace WikipediaBiographyCreator.Services
                 var regex = new Regex(
                     @"(?<dob>(?:\d{1,2}\s+[A-Za-z]+|\b[A-Za-z]+\s+\d{1,2}),?\s+\d{4})\s*;\s*died\s+(?<dod>(?:\d{1,2}\s+[A-Za-z]+|\b[A-Za-z]+\s+\d{1,2}),?\s+\d{4})",
                     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
 
                 var match = regex.Match(snippet);
                 if (match.Success)

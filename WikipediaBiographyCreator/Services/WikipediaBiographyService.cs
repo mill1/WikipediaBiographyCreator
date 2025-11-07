@@ -10,64 +10,72 @@ namespace WikipediaBiographyCreator.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IGuardianApiService _guardianApiService;
+        private readonly IIndependentApiService _independentApiService;
         private readonly INYTimesApiService _nyTimesApiService;
-        private readonly INYTimesObituarySubjectService _nyTimesObituarySubjectService;
+        private readonly INYTimesObitSubjectService _nyTimesObitSubjectService;
         private readonly IWikipediaApiService _wikipediaApiService;
         private readonly IDisambiguationResolver _disambiguationResolver;
 
         public WikipediaBiographyService(
             IConfiguration configuration,
             IGuardianApiService guardianApiService,
+            IIndependentApiService independentApiService,
             INYTimesApiService nyTimesApiService,
-            INYTimesObituarySubjectService nyTimesObituarySubjectService,
+            INYTimesObitSubjectService nyTimesObitSubjectService,
             IWikipediaApiService wikipediaApiService,
             IDisambiguationResolver disambiguationResolver)
         {
             _configuration = configuration;
             _guardianApiService = guardianApiService;
+            _independentApiService = independentApiService;
             _nyTimesApiService = nyTimesApiService;
-            _nyTimesObituarySubjectService = nyTimesObituarySubjectService;
+            _nyTimesObitSubjectService = nyTimesObitSubjectService;
             _wikipediaApiService = wikipediaApiService;
             _disambiguationResolver = disambiguationResolver;
         }
 
-        public void FindCandidates(int year, int monthId)
+        public void CrossReferenceWithNYTimes(int year, int monthId, bool checkGuardian)
         {
             ConsoleFormatter.WriteInfo($"Finding candidates for {year}/{monthId}...");
 
-            var guardianObits = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
+            var obitsToCheck = new List<Obituary>();
+
+           if (checkGuardian)
+                obitsToCheck = _guardianApiService.ResolveObituariesOfMonth(year, monthId);
+            else
+                obitsToCheck = _independentApiService.ResolveObituariesOfMonth(year, monthId);
+
             var nyTimesObits = _nyTimesApiService.ResolveObituariesOfMonth(year, monthId);
 
-            ConsoleFormatter.WriteInfo($"Resolved {guardianObits.Count} Guardian and {nyTimesObits.Count} NYTimes obituaries.");
+            ConsoleFormatter.WriteInfo($"Resolved {nyTimesObits.Count} NYTimes obituaries and {obitsToCheck.Count} obits to check.");
             ConsoleFormatter.WriteInfo($"Proceeding to check matching names for existence on Wikipedia...");
 
             int threshold = GetScoreThresholdSetting();
             int nrOfMatches = 0;
 
-            foreach (var guardianObit in guardianObits)
+            foreach (var obit in obitsToCheck)
             {
-                var ctx = new ObituaryContext(guardianObit, nyTimesObits, year, monthId);
-                nrOfMatches += ProcessGuardianObituary(ctx, threshold);
+                var ctx = new ObituaryContext(obit, nyTimesObits, year, monthId);
+
+                nrOfMatches += CrossReferenceObituary(ctx, threshold);
             }
 
             ConsoleFormatter.WriteInfo($"All done processing {year}/{monthId}. Number of evaluated matches: {nrOfMatches}");
         }
 
-        private int ProcessGuardianObituary(ObituaryContext ctx, int threshold)
+        private int CrossReferenceObituary(ObituaryContext ctx, int threshold)
         {
-            var nyTimesObitNames = ctx.NyTimesObits.Select(o => o.Subject.NormalizedName).ToList();
-            var bestMatch = FuzzySharp.Process.ExtractOne(ctx.Guardian.Subject.NormalizedName, nyTimesObitNames);
+            var nyTimesObitNames = ctx.NYTimesObits.Select(o => o.Subject.NormalizedName).ToList();
+            var bestMatch = FuzzySharp.Process.ExtractOne(ctx.ObitToCheck.Subject.NormalizedName, nyTimesObitNames);
             string matchedName = bestMatch.Value;
 
             if (bestMatch.Score < 85 && bestMatch.Score >= 75)
-                ConsoleFormatter.WriteWarning($"Matching score = {bestMatch.Score}: '{ctx.Guardian.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually.");
+                ConsoleFormatter.WriteWarning($"Matching score = {bestMatch.Score}: '{ctx.ObitToCheck.Subject.NormalizedName}' - '{matchedName}' (NYTimes). Check manually.");
 
             /*
                 Score = 80: 'Michael Aris' - 'Michael Caine' (NYTimes)
-                Score = 81: 'Obituaries; Gherman Titov' - 'Gherman S. Titov' (NYTimes)
                 Score = 82: 'WD Hamilton' - 'William Donald Hamilton' (NYTimes)
                 Score = 83: 'Barbosa Lima' - 'Alexandre Barboas Lima' (NYTimes)
-                Score = 86: 'Abdul Aziz Ibn Baz' - 'Abdelaziz Bin Baz' (NYTimes)
                 Score = 87: 'E. M. Nathanson' - 'Edwin M. Nathanson' (NYTimes)
                 Score = 76: 'Dino Leventis' - 'Constantine Leventis' (NYTimes)   <-- this was an actual match. And missing!                
              */
@@ -76,30 +84,26 @@ namespace WikipediaBiographyCreator.Services
                 return 0;
 
             /*
-                First false positive w.r. to July 2020:
-                John R. Lewis
+                First and only false positive w.r. to July 2020: John R. Lewis
                 https://www.theguardian.com/film/2020/jul/14/lewis-john-carlino-obituary
                 https://www.nytimes.com/2020/07/17/us/john-lewis-dead.html
              */
 
-            var nytObitContext = ctx.NyTimesObits.First(o => o.Subject.NormalizedName == matchedName);
-            ctx.NyTimesSubject = nytObitContext.Subject.Name;
+            var nytObitContext = ctx.NYTimesObits.First(o => o.Subject.NormalizedName == matchedName);
+            ctx.NYTimesSubject = nytObitContext.Subject.Name;
 
-            var nameVersions = _nyTimesObituarySubjectService.GetNameVersions(ctx.NyTimesSubject);
+            var nameVersions = _nyTimesObitSubjectService.GetNameVersions(ctx.NYTimesSubject);
             var exists = TryResolveExistsOnWikipedia(ctx, nameVersions, matchedName);
 
             if (!exists)
             {
-                var candidate = CreateCandidate(ctx.Guardian, ctx.NyTimesObits, matchedName);
+                var candidate = CreateCandidate(ctx.ObitToCheck, ctx.NYTimesObits, matchedName);
 
-                if (ctx.NyTimesSubject.Contains("Name cannot be resolved."))
+                if (ctx.NYTimesSubject.Contains("Name cannot be resolved."))
                     ConsoleFormatter.WriteSuccess($"{"Weak candidate"}: {candidate}");
                 else
-                {
                     ConsoleFormatter.WriteSuccess($"{"Strong candidate"}: {candidate}");
-                }
             }
-
             return 1;
         }
 
@@ -124,7 +128,7 @@ namespace WikipediaBiographyCreator.Services
                 if (_disambiguationResolver.TryResolve(ctx, pageTitle))
                     return true;
 
-                var candidate = CreateCandidate(ctx.Guardian, ctx.NyTimesObits, matchedName);
+                var candidate = CreateCandidate(ctx.ObitToCheck, ctx.NYTimesObits, matchedName);
                 ConsoleFormatter.WriteSuccess($"Possible candidate: {candidate}");
 
                 return true;
@@ -157,12 +161,12 @@ namespace WikipediaBiographyCreator.Services
             return null;
         }
 
-        private static Candidate CreateCandidate(Obituary guardianObit, List<Obituary> nyTimesObits, string subjectName)
+        private static Candidate CreateCandidate(Obituary obitToCheck, List<Obituary> nyTimesObits, string subjectName)
         {
             return new Candidate
             {
                 Name = subjectName,
-                WebUrlGuardian = guardianObit.WebUrl,
+                WebUrl = obitToCheck.WebUrl,
                 WebUrlNYTimes = nyTimesObits.Where(o => o.Subject.NormalizedName == subjectName).Select(o => o.WebUrl).First()
             };
         }
@@ -188,16 +192,16 @@ namespace WikipediaBiographyCreator.Services
 
         public class ObituaryContext
         {
-            public Obituary Guardian { get; }
-            public List<Obituary> NyTimesObits { get; }
+            public Obituary ObitToCheck { get; }
+            public List<Obituary> NYTimesObits { get; }
             public int Year { get; }
             public int MonthId { get; }
-            public string NyTimesSubject { get; set; } = string.Empty;
+            public string NYTimesSubject { get; set; } = string.Empty;
 
-            public ObituaryContext(Obituary guardian, List<Obituary> nyTimesObits, int year, int monthId)
+            public ObituaryContext(Obituary obitToCheck, List<Obituary> nyTimesObits, int year, int monthId)
             {
-                Guardian = guardian;
-                NyTimesObits = nyTimesObits;
+                ObitToCheck = obitToCheck;
+                NYTimesObits = nyTimesObits;
                 Year = year;
                 MonthId = monthId;
             }

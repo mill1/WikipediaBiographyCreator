@@ -14,7 +14,7 @@ namespace WikipediaBiographyCreator.Services
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
-        private readonly IGuardianObituarySubjectService _obituarySubjectService;
+        private readonly IGuardianObitSubjectService _obituarySubjectService;
 
         private static readonly HashSet<string> ExcludedTitles =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -30,7 +30,7 @@ namespace WikipediaBiographyCreator.Services
         public GuardianApiService(
             IConfiguration configuration,
             HttpClient httpClient,
-            IGuardianObituarySubjectService obituarySubjectService,
+            IGuardianObitSubjectService obituarySubjectService,
             IAssemblyService assemblyService)
         {
             _configuration = configuration;
@@ -61,9 +61,11 @@ namespace WikipediaBiographyCreator.Services
                     obituaryResults.Select(result => new Obituary
                     {
                         Id = result.id,
+                        Source = "Guardian",
+                        PublicationDate = DateOnly.FromDateTime(result.webPublicationDate),
                         Title = result.webTitle,
-                        ApiUrl = result.apiUrl,
                         WebUrl = result.webUrl,
+                        FullTextUrl = result.apiUrl,
                         Subject = _obituarySubjectService.Resolve(result)
                     }));
 
@@ -147,7 +149,6 @@ namespace WikipediaBiographyCreator.Services
                 return response.Content.ReadAsStringAsync().Result;
             else
                 throw new AppException($"Error retrieving Guardian archive: {response.ReasonPhrase}");
-
         }
 
         private string GetApiKey()
