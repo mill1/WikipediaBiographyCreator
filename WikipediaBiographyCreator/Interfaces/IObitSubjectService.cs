@@ -2,7 +2,7 @@
 
 namespace WikipediaBiographyCreator.Interfaces
 {
-    public interface IObituarySubjectService<T>
+    public interface IObitSubjectService<T>
     {
         Subject Resolve(T obituary);
     }

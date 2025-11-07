@@ -1,7 +1,6 @@
 ﻿namespace WikipediaBiographyCreator.Interfaces
 {
-    public interface IIndependentApiService : IApiService
-    {
-        // TODO        
+    public interface IIndependentApiService : IApiService, ITextSearchable
+    {        
     }
 }

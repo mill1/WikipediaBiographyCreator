@@ -2,7 +2,7 @@
 
 namespace WikipediaBiographyCreator.Interfaces
 {
-    public interface INYTimesObituarySubjectService : IObituarySubjectService<Doc>
+    public interface INYTimesObitSubjectService : IObitSubjectService<Doc>
     {
         public List<string> GetNameVersions(string subjectName);
     }

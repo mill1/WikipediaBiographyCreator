@@ -8,30 +8,50 @@ namespace WikipediaBiographyCreator.Services
     public class DisambiguationResolver : IDisambiguationResolver
     {
         private readonly IGuardianApiService _guardianApiService;
-        private readonly IGuardianObituarySubjectService _guardianObituarySubjectService;
+        private readonly IGuardianObitSubjectService _guardianObitSubjectService;
+        private readonly IIndependentApiService _independentApiService;
+        private readonly IIndependentObitSubjectService _indyObitSubjectService;
         private readonly IWikipediaApiService _wikipediaApiService;
 
         public DisambiguationResolver(
             IGuardianApiService guardianApiService,
-            IGuardianObituarySubjectService guardianObituarySubjectService,
+            IGuardianObitSubjectService guardianObitSubjectService,
+            IIndependentApiService independentApiService,
+            IIndependentObitSubjectService indyObitSubjectService,
             IWikipediaApiService wikipediaApiService)
         {
             _guardianApiService = guardianApiService;
-            _guardianObituarySubjectService = guardianObituarySubjectService;
+            _guardianObitSubjectService = guardianObitSubjectService;
+            _independentApiService = independentApiService;
+            _indyObitSubjectService = indyObitSubjectService;
             _wikipediaApiService = wikipediaApiService;
         }
 
+
         public bool TryResolve(ObituaryContext ctx, string pageTitle)
         {
-            var body = _guardianApiService.GetObituaryText(ctx.Guardian.ApiUrl, ctx.Guardian.Subject.Name);
-            var (dob, dod) = _guardianObituarySubjectService.ResolveDoBAndDoD(body);
+            ITextSearchable fullTextService = null;
+            IDoBDoDResolvable doBDoDResolver = null;
+
+            if (ctx.ObitToCheck.Source == "Guardian")
+            {
+                fullTextService = _guardianApiService;
+                doBDoDResolver = _guardianObitSubjectService;
+            }
+            else // Independent
+            {
+                fullTextService = _independentApiService;
+                doBDoDResolver = _indyObitSubjectService;
+            }
+
+            var body = fullTextService.GetObituaryText(ctx.ObitToCheck.FullTextUrl, ctx.ObitToCheck.Subject.Name);
+            var (dob, dod) = doBDoDResolver.ResolveDoBAndDoD(body);
+
             var content = _wikipediaApiService.GetPageContent(pageTitle);
 
             // Check redirect to disambiguation page. 
             if (content.Contains("#REDIRECT"))
             {
-                // Angus MacDonald: Last sentence in body differs:
-                // Angus MacDonald, piper, born October 20, 1938; died, June 25, 1999
                 // Get the disambiguation page 
                 var redirectionTarget = GetRedirectTarget(content);
                 content = _wikipediaApiService.GetPageContent(redirectionTarget);

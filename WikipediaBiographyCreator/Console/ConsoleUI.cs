@@ -6,7 +6,7 @@ namespace WikipediaBiographyCreator.Console
 {
     public class ConsoleUI
     {
-        private const int TotalWidth = 40;
+        private const int TotalWidth = 43;
         private readonly Dictionary<string, Action> _menuOptions;
         private readonly List<MenuItem> _menuItems;
         private readonly IUIActions _uiActions;

@@ -4,14 +4,14 @@ using WikipediaBiographyCreator.Services;
 namespace WikipediaBiographyCreator.Tests
 {
     [TestClass]
-    public class NYTimesObituarySubjectServiceTests
+    public class NYTimesObitSubjectServiceTests
     {
-        private NYTimesObituarySubjectService _service;
+        private NYTimesObitSubjectService _service;
 
         [TestInitialize]
         public void Setup()
         {
-            _service = new NYTimesObituarySubjectService(new NameVersionService());
+            _service = new NYTimesObitSubjectService(new NameVersionService());
         }
 
         [TestMethod]

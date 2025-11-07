@@ -1,16 +1,15 @@
-﻿using WikipediaBiographyCreator.Console;
-using WikipediaBiographyCreator.Extensions;
+﻿using WikipediaBiographyCreator.Extensions;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
 using WikipediaBiographyCreator.Models.NYTimes;
 
 namespace WikipediaBiographyCreator.Services
 {
-    public class NYTimesObituarySubjectService : INYTimesObituarySubjectService
+    public class NYTimesObitSubjectService : INYTimesObitSubjectService
     {
         private readonly INameVersionService _nameVersionService;
 
-        public NYTimesObituarySubjectService(INameVersionService nameVersionService)
+        public NYTimesObitSubjectService(INameVersionService nameVersionService)
         {
             _nameVersionService = nameVersionService;
         }

@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>WikipediaBiographyCreator</RootNamespace>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
