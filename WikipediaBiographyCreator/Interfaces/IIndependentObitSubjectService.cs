@@ -1,8 +1,8 @@
-﻿using WikipediaBiographyCreator.Models.Guardian;
+﻿using WikipediaBiographyCreator.Models;
 
 namespace WikipediaBiographyCreator.Interfaces
 {
-    public interface IIndependentObitSubjectService : IObitSubjectService<Result>, IDoBDoDResolvable
+    public interface IIndependentObitSubjectService : IObitSubjectService<Obituary>, IDoBDoDResolvable
     {
     }
 }

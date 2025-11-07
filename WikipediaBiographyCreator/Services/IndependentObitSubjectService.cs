@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using WikipediaBiographyCreator.Interfaces;
 using WikipediaBiographyCreator.Models;
-using WikipediaBiographyCreator.Models.Guardian;
 
 namespace WikipediaBiographyCreator.Services
 {
@@ -59,7 +58,7 @@ namespace WikipediaBiographyCreator.Services
             return default;
         }
 
-        public Subject Resolve(Result obituary)
+        public Subject Resolve(Obituary obituary)
         {
             throw new NotImplementedException();
         }
