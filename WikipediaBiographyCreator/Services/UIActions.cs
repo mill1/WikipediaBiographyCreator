@@ -10,17 +10,20 @@ namespace WikipediaBiographyCreator.Services
         private readonly INYTimesApiService _nyTimesApiService;
         private readonly IIndependentApiService _independentApiService;
         private readonly IWikipediaBiographyService _wikipediaBiographyService;
+        private readonly IWebArchiveService _webArchiveService;
 
         public UIActions(
             IGuardianApiService guardianApiService,
             INYTimesApiService nyTimesApiService,
             IIndependentApiService independentApiService,
-            IWikipediaBiographyService wikipediaBiographyService)
+            IWikipediaBiographyService wikipediaBiographyService,
+            IWebArchiveService webArchiveService)
         {
             _guardianApiService = guardianApiService;
             _nyTimesApiService = nyTimesApiService;
             _independentApiService = independentApiService;
             _wikipediaBiographyService = wikipediaBiographyService;
+            _webArchiveService = webArchiveService;
         }
 
         public void CrossRefGuardian()
@@ -97,6 +100,18 @@ namespace WikipediaBiographyCreator.Services
             {
                 ConsoleFormatter.WriteInfo($"{obit.Subject.Name}");
             }
+        }
+
+        public void POCWebArchive()
+        {
+            var urls = _webArchiveService.ResolveUrlsTheIndependent().ToList();
+
+            ConsoleFormatter.WriteInfo("Scraped obituary pages The Independent since July 2024 (selection):");
+
+            foreach (var url in urls)
+                ConsoleFormatter.WriteInfo(url);
+
+            ConsoleFormatter.WriteInfo($"{urls.Count} url's to obituaries retrieved w.r. to 'www.independent.co.uk/incoming/'");
         }
 
         public void TestStuff()

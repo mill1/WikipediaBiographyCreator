@@ -20,6 +20,7 @@ namespace WikipediaBiographyCreator.Console
             public const string NYTimesObits = "n";
             public const string GuardianObits = "g";
             public const string IndependentObits = "i";
+            public const string POCWebArchive = "w";
             public const string TestStuff = "t";
             public const string Quit = "q";
         }
@@ -35,6 +36,7 @@ namespace WikipediaBiographyCreator.Console
                 new("Show NYTimes obituary names", MenuOptions.NYTimesObits, _uiActions.ShowNYTimesObituaries),
                 new("Show Guardian obituary names", MenuOptions.GuardianObits, _uiActions.ShowGuardianObituaries),
                 new("Show Independent obituary names", MenuOptions.IndependentObits, _uiActions.ShowIndependentObituaries),
+                new("POC Web Archive", MenuOptions.POCWebArchive, _uiActions.POCWebArchive),
                 new("Test stuff", MenuOptions.TestStuff, _uiActions.TestStuff),
                 new("Quit", MenuOptions.Quit, () => _quit = true)
             ];

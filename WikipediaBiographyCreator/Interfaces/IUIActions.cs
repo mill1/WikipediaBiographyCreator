@@ -7,6 +7,7 @@
         void ShowGuardianObituaries();
         void ShowNYTimesObituaries();
         void ShowIndependentObituaries();
+        void POCWebArchive();
         void TestStuff();
     }
 }

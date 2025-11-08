@@ -43,11 +43,13 @@ namespace WikipediaBiographyCreator
             .AddScoped<INYTimesApiService, NYTimesApiService>()
             .AddScoped<INYTimesObitSubjectService, NYTimesObitSubjectService>()
             .AddScoped<IIndependentApiService, IndependentApiService>()
-            .AddScoped<IIndependentObitSubjectService, IndependentObitSubjectService>();
+            .AddScoped<IIndependentObitSubjectService, IndependentObitSubjectService>()
+            .AddScoped<IWebArchiveService, WebArchiveService>();
 
             services.AddHttpClient<IGuardianApiService, GuardianApiService>();
             services.AddHttpClient<INYTimesApiService, NYTimesApiService>();
             services.AddHttpClient<IIndependentApiService, IndependentApiService>();
+            services.AddHttpClient<IWebArchiveService, WebArchiveService>();
 
             return services;
         }
