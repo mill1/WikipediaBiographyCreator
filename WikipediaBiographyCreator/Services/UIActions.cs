@@ -9,19 +9,24 @@ namespace WikipediaBiographyCreator.Services
         private readonly IGuardianApiService _guardianApiService;
         private readonly INYTimesApiService _nyTimesApiService;
         private readonly IIndependentApiService _independentApiService;
+        private readonly IIndependentObitSubjectService _indyObitSubjectService;
         private readonly IWikipediaBiographyService _wikipediaBiographyService;
         private readonly IWebArchiveService _webArchiveService;
+
+        private List<string> urlsPOC;
 
         public UIActions(
             IGuardianApiService guardianApiService,
             INYTimesApiService nyTimesApiService,
             IIndependentApiService independentApiService,
+            IIndependentObitSubjectService indyObitSubjectService,
             IWikipediaBiographyService wikipediaBiographyService,
             IWebArchiveService webArchiveService)
         {
             _guardianApiService = guardianApiService;
             _nyTimesApiService = nyTimesApiService;
             _independentApiService = independentApiService;
+            _indyObitSubjectService = indyObitSubjectService;
             _wikipediaBiographyService = wikipediaBiographyService;
             _webArchiveService = webArchiveService;
         }
@@ -104,14 +109,42 @@ namespace WikipediaBiographyCreator.Services
 
         public void POCWebArchive()
         {
-            var urls = _webArchiveService.ResolveUrlsTheIndependent().ToList();
+            if(urlsPOC == null)
+                urlsPOC = _webArchiveService.ResolveUrlsTheIndependent().ToList();
 
-            ConsoleFormatter.WriteInfo("Scraped obituary pages The Independent since July 2024 (selection):");
+            ConsoleFormatter.WriteInfo("Obituary pages of The Independent (selection) scraped since July 2024:");
 
-            foreach (var url in urls)
+            foreach (var url in urlsPOC)
                 ConsoleFormatter.WriteInfo(url);
 
-            ConsoleFormatter.WriteInfo($"{urls.Count} url's to obituaries retrieved w.r. to 'www.independent.co.uk/incoming/'");
+            ConsoleFormatter.WriteInfo($"{urlsPOC.Count} url's to obituaries retrieved w.r. to 'www.independent.co.uk/incoming/'");
+
+            string answer = ConsoleFormatter.GetUserInput("Inspect details of a specific obituary? (y/n)");
+
+            if (answer.ToLower() != "y")
+                return;
+
+            int index = GetIntegerInput("Index of url to inspect:");
+
+            if (index < 0 || index >= urlsPOC.Count)
+                throw new AppException("Invalid index");
+
+            var html = _independentApiService.GetHtml(urlsPOC[index]);
+            var (publicationDate, title, description) = _indyObitSubjectService.ExtractMetadata(html);
+
+            ConsoleFormatter.WriteInfo($"Url: {urlsPOC[index]}");
+            ConsoleFormatter.WriteInfo($"Publication date: {publicationDate.ToString("d MMMM yyy")}, title: {title}");
+            ConsoleFormatter.WriteInfo($"Description: {description}");
+
+            var body = _independentApiService.GetObituaryText(urlsPOC[index], string.Empty);
+            var (dob, dod) = _indyObitSubjectService.ResolveDoBAndDoD(body);
+
+            ConsoleFormatter.WriteInfo($"Date of birth: {dob.ToString("d MMMM yyy")}, Date of death: {dod.ToString("d MMMM yyy")}");
+
+            answer = ConsoleFormatter.GetUserInput("Display the complete text? (y/n)");
+
+            if (answer.ToLower() == "y")
+                ConsoleFormatter.WriteInfo(body);
         }
 
         public void TestStuff()

@@ -72,20 +72,23 @@ namespace WikipediaBiographyCreator.Services
             return list;
         }
 
-        public string GetObituaryText(string apiUrl, string subjectName)
+        public string GetHtml(string url)
         {
-            var response = _httpClient.GetAsync(apiUrl).Result;
+            var response = _httpClient.GetAsync(url).Result;
 
             if (response.IsSuccessStatusCode)
             {
-                var html = response.Content.ReadAsStringAsync().Result;
-
-                return ExtractBodyText(html);
+                return response.Content.ReadAsStringAsync().Result;                
             }
             else
             {
-                throw new AppException($"Response status: {response.StatusCode}. Subject: {subjectName}");
+                throw new AppException($"Response status: {response.StatusCode}");
             }
+        }
+
+        public string GetObituaryText(string apiUrl, string subjectName)
+        {
+            return ExtractBodyText(GetHtml(apiUrl));            
         }
 
         private static string ExtractBodyText(string html)

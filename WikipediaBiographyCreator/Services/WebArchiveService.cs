@@ -49,7 +49,7 @@ namespace WikipediaBiographyCreator.Services
             // - www.independent.co.uk/incoming/obituary-
             string uri = $"cdx/search/cdx?url=www.independent.co.uk/incoming/obituary-*&output=json&filter=statuscode:200&from=20240707&collapse=urlkey";
 
-            ConsoleFormatter.WriteInfo($"Retrieving data from wayback machine...");
+            ConsoleFormatter.WriteInfo($"Retrieving data from the wayback machine...");
 
             // by calling .Result you are synchronously reading the result
             var response = _httpClient.GetAsync(uri).Result;
