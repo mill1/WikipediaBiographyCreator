@@ -84,7 +84,11 @@ namespace WikipediaBiographyCreator.Services
                 return 0;
 
             /*
-                First and only false positive w.r. to July 2020: John R. Lewis
+                False positives:
+                May 1994: John G. Lord
+                https://www.independent.co.uk/news/people/obituary-lord-johnmackie-1438834.html
+                https://www.nytimes.com/1994/05/22/obituaries/john-g-lord-70-author-and-producer.html
+                July 2020: John R. Lewis
                 https://www.theguardian.com/film/2020/jul/14/lewis-john-carlino-obituary
                 https://www.nytimes.com/2020/07/17/us/john-lewis-dead.html
              */
