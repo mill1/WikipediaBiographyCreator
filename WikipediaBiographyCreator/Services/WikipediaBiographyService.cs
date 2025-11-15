@@ -88,6 +88,9 @@ namespace WikipediaBiographyCreator.Services
                 May 1994: John G. Lord
                 https://www.independent.co.uk/news/people/obituary-lord-johnmackie-1438834.html
                 https://www.nytimes.com/1994/05/22/obituaries/john-g-lord-70-author-and-producer.html
+                August 1997: John B. Elliott
+                https://www.independent.co.uk/news/people/obituary-john-elliot-1246657.html
+                https://www.nytimes.com/1997/08/09/arts/john-b-elliott-69-art-collector.html
                 July 2020: John R. Lewis
                 https://www.theguardian.com/film/2020/jul/14/lewis-john-carlino-obituary
                 https://www.nytimes.com/2020/07/17/us/john-lewis-dead.html
